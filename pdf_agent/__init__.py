@@ -16,7 +16,7 @@ Example usage:
     log_agent_messages(response["messages"])
 """
 
-from .agent import create_pdf_agent, log_agent_messages
+from .agent import create_pdf_agent
 from .core import (
     analyze_pdf_from_base64,
     analyze_pdf_from_file,
@@ -24,6 +24,8 @@ from .core import (
     download_and_analyze_pdf,
     get_model,
 )
+from .logging_utils import log_agent_messages
+from .prompts import PDF_AGENT_SYSTEM_PROMPT
 from .tools import (
     analyze_loaded_pdf,
     clear_pdf_cache,
@@ -38,6 +40,7 @@ __all__ = [
     # Agent
     "create_pdf_agent",
     "log_agent_messages",
+    "PDF_AGENT_SYSTEM_PROMPT",
     # Direct analysis
     "analyze_pdf_from_url",
     "analyze_pdf_from_base64",

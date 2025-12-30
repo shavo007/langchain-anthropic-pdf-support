@@ -8,8 +8,9 @@ import logging
 
 from dotenv import load_dotenv
 
-from .agent import create_pdf_agent, log_agent_messages
+from .agent import create_pdf_agent
 from .core import analyze_pdf_from_url
+from .logging_utils import log_agent_messages
 
 # Load environment variables
 load_dotenv()
