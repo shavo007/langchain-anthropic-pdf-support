@@ -26,18 +26,17 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
-include = ["pdf_agent.py"]
+packages = ["pdf_agent"]
 
 [project.scripts]
-pdf-agent = "pdf_agent:main"
+pdf-agent = "pdf_agent.__main__:main"
 
 [tool.poe.tasks]
-dev = "python pdf_agent.py"
+dev = "python -m pdf_agent"
 lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
-typecheck = "mypy pdf_agent.py"
+typecheck = "mypy pdf_agent"
 check = ["lint", "format", "typecheck"]
 outdated = "uv pip list --outdated"
 upgrade = "uv lock --upgrade"

@@ -72,7 +72,11 @@ Get your API key from [Anthropic Console](https://console.anthropic.com/).
 ### Run the demo
 
 ```bash
+# Run the agent demo (default)
 uv run poe dev
+
+# Or run direct analysis without the agent
+uv run python -m pdf_agent --direct
 ```
 
 ### Using the PDF Agent
@@ -241,13 +245,18 @@ Claude's PDF support allows you to:
 
 ```
 langchain-anthropic-pdf-support/
-├── pdf_agent.py      # Main module with PDF agent and analysis functions
-├── pyproject.toml    # Project configuration and dependencies
-├── uv.lock           # Locked dependencies
-├── .env              # Environment variables (gitignored)
-├── .gitignore        # Git ignore rules
-├── .python-version   # Python version specification
-└── README.md         # This file
+├── pdf_agent/              # Main package
+│   ├── __init__.py         # Public API exports
+│   ├── __main__.py         # CLI entry point
+│   ├── agent.py            # Agent creation and logging utilities
+│   ├── core.py             # Model initialization and direct analysis
+│   └── tools.py            # Agent tools (@tool decorated functions)
+├── pyproject.toml          # Project configuration and dependencies
+├── uv.lock                 # Locked dependencies
+├── .env                    # Environment variables (gitignored)
+├── .gitignore              # Git ignore rules
+├── .python-version         # Python version specification
+└── README.md               # This file
 ```
 
 ## Dependencies
