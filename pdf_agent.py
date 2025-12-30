@@ -11,12 +11,16 @@ Claude model with native PDF support. It showcases three methods for providing P
 import base64
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import httpx
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
+
+if TYPE_CHECKING:
+    from langgraph.graph.state import CompiledGraph
 
 # Load environment variables from .env file
 load_dotenv()
@@ -188,8 +192,12 @@ def load_pdf_from_url(url: str) -> str:
         # Use URL as identifier
         _pdf_cache[url] = pdf_data
         return f"Successfully loaded PDF from URL. Use this identifier for analysis: {url}"
-    except Exception as e:
-        return f"Failed to load PDF: {str(e)}"
+    except httpx.TimeoutException:
+        return f"Failed to load PDF: Request timed out for {url}"
+    except httpx.HTTPStatusError as e:
+        return f"Failed to load PDF: HTTP {e.response.status_code} error for {url}"
+    except httpx.RequestError as e:
+        return f"Failed to load PDF: {e}"
 
 
 def load_pdf_from_file(file_path: str) -> str:
@@ -213,8 +221,10 @@ def load_pdf_from_file(file_path: str) -> str:
 
         _pdf_cache[file_path] = pdf_data
         return f"Successfully loaded PDF from file. Use this identifier for analysis: {file_path}"
-    except Exception as e:
-        return f"Failed to load PDF: {str(e)}"
+    except PermissionError:
+        return f"Failed to load PDF: Permission denied for {file_path}"
+    except OSError as e:
+        return f"Failed to load PDF: {e}"
 
 
 def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
@@ -253,8 +263,10 @@ def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
 
         response = model.invoke([message])
         return response.content
-    except Exception as e:
-        return f"Error analyzing PDF: {str(e)}"
+    except ValueError as e:
+        return f"Error analyzing PDF: {e}"
+    except httpx.RequestError as e:
+        return f"Error analyzing PDF: API request failed - {e}"
 
 
 def list_loaded_pdfs() -> str:
@@ -322,7 +334,7 @@ You can:
 - If uncertain about something in the document, acknowledge the limitation"""
 
 
-def create_pdf_agent():
+def create_pdf_agent() -> "CompiledGraph":
     """Create a LangChain agent specialized for PDF document analysis.
 
     Returns:
@@ -352,7 +364,7 @@ def create_pdf_agent():
 # ============================================================================
 
 
-def main():
+def main() -> None:
     """Run demonstration of PDF analysis capabilities."""
     print("=" * 60)
     print("LangChain + Anthropic Claude PDF Agent Demo")
