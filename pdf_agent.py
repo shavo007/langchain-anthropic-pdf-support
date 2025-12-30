@@ -11,7 +11,7 @@ Claude model with native PDF support. It showcases three methods for providing P
 import base64
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import httpx
 from dotenv import load_dotenv
@@ -20,7 +20,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
 if TYPE_CHECKING:
-    from langgraph.graph.state import CompiledGraph
+    from langgraph.graph.state import CompiledStateGraph
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,7 +44,7 @@ def get_model(model_name: str = "claude-sonnet-4-5-20250929") -> ChatAnthropic:
             "Get your API key from https://console.anthropic.com/"
         )
 
-    return ChatAnthropic(model=model_name)
+    return ChatAnthropic(model=model_name)  # type: ignore[call-arg]
 
 
 def analyze_pdf_from_url(url: str, question: str) -> str:
@@ -79,7 +79,7 @@ def analyze_pdf_from_url(url: str, question: str) -> str:
     )
 
     response = model.invoke([message])
-    return response.content
+    return cast(str, response.content)
 
 
 def analyze_pdf_from_base64(pdf_data: str, question: str) -> str:
@@ -115,7 +115,7 @@ def analyze_pdf_from_base64(pdf_data: str, question: str) -> str:
     )
 
     response = model.invoke([message])
-    return response.content
+    return cast(str, response.content)
 
 
 def analyze_pdf_from_file(file_path: str | Path, question: str) -> str:
@@ -262,7 +262,7 @@ def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
         )
 
         response = model.invoke([message])
-        return response.content
+        return cast(str, response.content)
     except ValueError as e:
         return f"Error analyzing PDF: {e}"
     except httpx.RequestError as e:
@@ -334,7 +334,7 @@ You can:
 - If uncertain about something in the document, acknowledge the limitation"""
 
 
-def create_pdf_agent() -> "CompiledGraph":
+def create_pdf_agent() -> "CompiledStateGraph[Any, Any]":
     """Create a LangChain agent specialized for PDF document analysis.
 
     Returns:
@@ -342,7 +342,7 @@ def create_pdf_agent() -> "CompiledGraph":
     """
     model = get_model()
 
-    tools = [
+    tools: list[Any] = [
         load_pdf_from_url,
         load_pdf_from_file,
         analyze_loaded_pdf,
@@ -350,7 +350,7 @@ def create_pdf_agent() -> "CompiledGraph":
         clear_pdf_cache,
     ]
 
-    agent = create_agent(
+    agent: CompiledStateGraph[Any, Any] = create_agent(
         model,
         tools=tools,
         system_prompt=PDF_AGENT_SYSTEM_PROMPT,
