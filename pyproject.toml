@@ -33,6 +33,7 @@ pdf-agent = "pdf_agent.__main__:main"
 
 [tool.poe.tasks]
 dev = "python -m pdf_agent"
+demo = "python -m pdf_agent https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
