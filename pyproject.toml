@@ -37,6 +37,8 @@ lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
 check = ["lint", "format"]
+outdated = "uv pip list --outdated"
+upgrade = "uv lock --upgrade"
 
 [tool.ruff]
 line-length = 100
