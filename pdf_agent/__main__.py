@@ -28,15 +28,19 @@ SAMPLE_PDF_URL = (
 )
 
 
-def run_agent_demo() -> None:
-    """Run the PDF agent demo."""
+def run_agent_demo(pdf_url: str) -> None:
+    """Run the PDF agent demo.
+
+    Args:
+        pdf_url: URL of the PDF to analyze.
+    """
     print("=" * 60)
     print("PDF Agent Demo")
     print("=" * 60)
 
     agent = create_pdf_agent()
 
-    print(f"\nAnalyzing PDF: {SAMPLE_PDF_URL[:50]}...")
+    print(f"\nAnalyzing PDF: {pdf_url[:50]}...")
     print("-" * 60)
 
     response = agent.invoke(
@@ -45,7 +49,7 @@ def run_agent_demo() -> None:
                 {
                     "role": "user",
                     "content": (
-                        f"Please load this PDF: {SAMPLE_PDF_URL} "
+                        f"Please load this PDF: {pdf_url} "
                         "Then tell me what the document is about and list 3 key points."
                     ),
                 }
@@ -60,17 +64,21 @@ def run_agent_demo() -> None:
     print("\n" + "=" * 60)
 
 
-def run_direct_demo() -> None:
-    """Run direct PDF analysis demo (without agent)."""
+def run_direct_demo(pdf_url: str) -> None:
+    """Run direct PDF analysis demo (without agent).
+
+    Args:
+        pdf_url: URL of the PDF to analyze.
+    """
     print("=" * 60)
     print("Direct PDF Analysis Demo (no agent)")
     print("=" * 60)
 
-    print(f"\nAnalyzing PDF: {SAMPLE_PDF_URL[:50]}...")
+    print(f"\nAnalyzing PDF: {pdf_url[:50]}...")
     print("-" * 60)
 
     result = analyze_pdf_from_url(
-        url=SAMPLE_PDF_URL,
+        url=pdf_url,
         question="What are the key findings in this document? Please summarize in 3-5 bullet points.",
     )
     print(f"Response:\n{result}")
@@ -84,9 +92,17 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python -m pdf_agent              # Run agent demo (default)
-  python -m pdf_agent --direct     # Run direct analysis demo
+  python -m pdf_agent                              # Run agent with default PDF
+  python -m pdf_agent https://example.com/doc.pdf # Analyze custom PDF
+  python -m pdf_agent --direct                    # Run direct analysis (no agent)
+  python -m pdf_agent https://example.com/doc.pdf --direct  # Direct analysis on custom PDF
         """,
+    )
+    parser.add_argument(
+        "url",
+        nargs="?",
+        default=SAMPLE_PDF_URL,
+        help="URL of the PDF to analyze (default: Claude 3 Model Card)",
     )
     parser.add_argument(
         "--direct",
@@ -98,9 +114,9 @@ Examples:
 
     try:
         if args.direct:
-            run_direct_demo()
+            run_direct_demo(args.url)
         else:
-            run_agent_demo()
+            run_agent_demo(args.url)
     except Exception as e:
         print(f"Error: {e}")
         raise SystemExit(1) from e
