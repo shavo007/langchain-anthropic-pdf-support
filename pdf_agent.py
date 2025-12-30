@@ -9,6 +9,7 @@ Claude model with native PDF support. It showcases three methods for providing P
 """
 
 import base64
+import logging
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -18,7 +19,15 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from langgraph.graph.state import CompiledStateGraph
@@ -372,6 +381,59 @@ def create_pdf_agent() -> "CompiledStateGraph[Any, Any]":
 
 
 # ============================================================================
+# Logging Utilities
+# ============================================================================
+
+
+def log_agent_messages(messages: list[Any]) -> None:
+    """Log all messages from agent execution including tool calls.
+
+    Args:
+        messages: List of messages from agent response.
+    """
+    logger.info("=" * 50)
+    logger.info("AGENT EXECUTION LOG")
+    logger.info("=" * 50)
+
+    for i, msg in enumerate(messages):
+        msg_type = type(msg).__name__
+        logger.info(f"\n[{i + 1}] {msg_type}")
+
+        if isinstance(msg, HumanMessage):
+            content = msg.content
+            if isinstance(content, str):
+                logger.info(f"    Content: {content[:200]}{'...' if len(content) > 200 else ''}")
+            else:
+                logger.info(f"    Content: {type(content)}")
+
+        elif isinstance(msg, AIMessage):
+            # Log content if present
+            if msg.content:
+                content = str(msg.content)
+                logger.info(f"    Content: {content[:200]}{'...' if len(content) > 200 else ''}")
+
+            # Log tool calls if present
+            if hasattr(msg, "tool_calls") and msg.tool_calls:
+                logger.info(f"    Tool Calls ({len(msg.tool_calls)}):")
+                for tc in msg.tool_calls:
+                    tool_name = tc.get("name", "unknown")
+                    tool_args = tc.get("args", {})
+                    # Truncate long args (like base64 data)
+                    args_str = str(tool_args)
+                    if len(args_str) > 100:
+                        args_str = args_str[:100] + "..."
+                    logger.info(f"      - {tool_name}({args_str})")
+
+        elif isinstance(msg, ToolMessage):
+            tool_name = getattr(msg, "name", "unknown")
+            content = str(msg.content)
+            logger.info(f"    Tool: {tool_name}")
+            logger.info(f"    Result: {content[:200]}{'...' if len(content) > 200 else ''}")
+
+    logger.info("\n" + "=" * 50)
+
+
+# ============================================================================
 # Demo / Main Entry Point
 # ============================================================================
 
@@ -423,6 +485,9 @@ def main() -> None:
                 ]
             }
         )
+
+        # Log all messages including tool calls
+        log_agent_messages(response["messages"])
 
         # Extract the final message
         final_message = response["messages"][-1].content
