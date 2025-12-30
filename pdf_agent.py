@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, cast
 import httpx
 from dotenv import load_dotenv
 from langchain.agents import create_agent
+from langchain.tools import tool
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
@@ -172,6 +173,7 @@ def download_and_analyze_pdf(url: str, question: str) -> str:
 _pdf_cache: dict[str, str] = {}
 
 
+@tool(parse_docstring=True)
 def load_pdf_from_url(url: str) -> str:
     """Load a PDF document from a URL for analysis.
 
@@ -180,9 +182,6 @@ def load_pdf_from_url(url: str) -> str:
 
     Args:
         url: Public URL pointing to the PDF document.
-
-    Returns:
-        Confirmation message with the PDF identifier.
     """
     try:
         response = httpx.get(url, follow_redirects=True, timeout=30.0)
@@ -200,6 +199,7 @@ def load_pdf_from_url(url: str) -> str:
         return f"Failed to load PDF: {e}"
 
 
+@tool(parse_docstring=True)
 def load_pdf_from_file(file_path: str) -> str:
     """Load a PDF document from a local file for analysis.
 
@@ -207,9 +207,6 @@ def load_pdf_from_file(file_path: str) -> str:
 
     Args:
         file_path: Path to the local PDF file.
-
-    Returns:
-        Confirmation message with the PDF identifier.
     """
     try:
         path = Path(file_path)
@@ -227,6 +224,7 @@ def load_pdf_from_file(file_path: str) -> str:
         return f"Failed to load PDF: {e}"
 
 
+@tool(parse_docstring=True)
 def load_pdf_from_base64(pdf_base64: str, identifier: str = "base64_pdf") -> str:
     """Load a PDF document from base64-encoded data for analysis.
 
@@ -236,9 +234,6 @@ def load_pdf_from_base64(pdf_base64: str, identifier: str = "base64_pdf") -> str
     Args:
         pdf_base64: Base64-encoded PDF content.
         identifier: Optional name to identify this PDF. Defaults to 'base64_pdf'.
-
-    Returns:
-        Confirmation message with the PDF identifier.
     """
     try:
         # Validate base64 data by attempting to decode it
@@ -250,15 +245,13 @@ def load_pdf_from_base64(pdf_base64: str, identifier: str = "base64_pdf") -> str
         return "Failed to load PDF: Invalid base64 encoding"
 
 
+@tool(parse_docstring=True)
 def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
     """Analyze a previously loaded PDF document.
 
     Args:
-        pdf_identifier: The URL or file path used when loading the PDF.
+        pdf_identifier: The identifier (URL, file path, or custom name) used when loading the PDF.
         question: The question to ask about the PDF content.
-
-    Returns:
-        Analysis results from Claude.
     """
     if pdf_identifier not in _pdf_cache:
         return f"Error: No PDF loaded with identifier '{pdf_identifier}'. Please load the PDF first using load_pdf_from_url or load_pdf_from_file."
@@ -292,12 +285,9 @@ def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
         return f"Error analyzing PDF: API request failed - {e}"
 
 
+@tool
 def list_loaded_pdfs() -> str:
-    """List all currently loaded PDFs.
-
-    Returns:
-        List of loaded PDF identifiers.
-    """
+    """List all currently loaded PDFs and their identifiers."""
     if not _pdf_cache:
         return (
             "No PDFs currently loaded. Use load_pdf_from_url or load_pdf_from_file to load a PDF."
@@ -307,12 +297,9 @@ def list_loaded_pdfs() -> str:
     return f"Currently loaded PDFs:\n{pdf_list}"
 
 
+@tool
 def clear_pdf_cache() -> str:
-    """Clear all loaded PDFs from memory.
-
-    Returns:
-        Confirmation message.
-    """
+    """Clear all loaded PDFs from memory to free up resources."""
     _pdf_cache.clear()
     return "All PDFs have been cleared from memory."
 
