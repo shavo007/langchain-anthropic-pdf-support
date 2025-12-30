@@ -227,6 +227,29 @@ def load_pdf_from_file(file_path: str) -> str:
         return f"Failed to load PDF: {e}"
 
 
+def load_pdf_from_base64(pdf_base64: str, identifier: str = "base64_pdf") -> str:
+    """Load a PDF document from base64-encoded data for analysis.
+
+    Caches the PDF so it can be analyzed multiple times. Useful when receiving
+    PDFs from APIs, databases, or other sources that provide base64-encoded data.
+
+    Args:
+        pdf_base64: Base64-encoded PDF content.
+        identifier: Optional name to identify this PDF. Defaults to 'base64_pdf'.
+
+    Returns:
+        Confirmation message with the PDF identifier.
+    """
+    try:
+        # Validate base64 data by attempting to decode it
+        base64.standard_b64decode(pdf_base64)
+
+        _pdf_cache[identifier] = pdf_base64
+        return f"Successfully loaded PDF from base64 data. Use this identifier for analysis: {identifier}"
+    except ValueError:
+        return "Failed to load PDF: Invalid base64 encoding"
+
+
 def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
     """Analyze a previously loaded PDF document.
 
@@ -299,7 +322,7 @@ PDF_AGENT_SYSTEM_PROMPT = """You are an expert PDF Document Analyst agent powere
 ## Your Capabilities
 
 You can:
-- Load PDF documents from URLs or local file paths
+- Load PDF documents from URLs, local file paths, or base64-encoded data
 - Analyze text content, tables, charts, images, and visual elements within PDFs
 - Answer specific questions about document contents
 - Summarize documents or specific sections
@@ -309,9 +332,10 @@ You can:
 
 ## How to Work with PDFs
 
-1. **Loading PDFs**: Before analyzing a PDF, it must be loaded using either:
+1. **Loading PDFs**: Before analyzing a PDF, it must be loaded using one of:
    - `load_pdf_from_url` for PDFs accessible via URL
    - `load_pdf_from_file` for local PDF files
+   - `load_pdf_from_base64` for base64-encoded PDF data (from APIs, databases, etc.)
 
 2. **Analyzing PDFs**: Once loaded, use `analyze_loaded_pdf` with the PDF identifier and your question
 
@@ -345,6 +369,7 @@ def create_pdf_agent() -> "CompiledStateGraph[Any, Any]":
     tools: list[Any] = [
         load_pdf_from_url,
         load_pdf_from_file,
+        load_pdf_from_base64,
         analyze_loaded_pdf,
         list_loaded_pdfs,
         clear_pdf_cache,
