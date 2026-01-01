@@ -1,6 +1,7 @@
 # LangChain Anthropic PDF Agent
 
 [![CI](https://github.com/shavo007/langchain-anthropic-pdf-support/actions/workflows/ci.yml/badge.svg)](https://github.com/shavo007/langchain-anthropic-pdf-support/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/shavo007/langchain-anthropic-pdf-support/graph/badge.svg)](https://codecov.io/gh/shavo007/langchain-anthropic-pdf-support)
 
 A LangChain agent specialized for PDF document analysis using Anthropic's Claude model with native PDF support.
 
