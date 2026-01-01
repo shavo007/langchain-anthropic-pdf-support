@@ -22,6 +22,8 @@ build-backend = "hatchling.build"
 dev = [
     "mypy>=1.19.1",
     "poethepoet>=0.39.0",
+    "pytest>=9.0.2",
+    "pytest-mock>=3.15.1",
     "ruff>=0.14.10",
 ]
 
@@ -34,11 +36,14 @@ pdf-agent = "pdf_agent.__main__:main"
 [tool.poe.tasks]
 dev = "python -m pdf_agent"
 demo = "python -m pdf_agent https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+test = "pytest tests/ -v"
+test-cov = "pytest tests/ -v --cov=pdf_agent --cov-report=term-missing"
 lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
 typecheck = "mypy pdf_agent"
 check = ["lint", "format", "typecheck"]
+ci = ["lint", "typecheck", "test"]
 outdated = "uv pip list --outdated"
 upgrade = "uv lock --upgrade"
 
@@ -59,3 +64,10 @@ disallow_incomplete_defs = true
 check_untyped_defs = true
 strict_optional = true
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+python_classes = ["Test*"]
+addopts = "-v --tb=short"
