@@ -22,6 +22,7 @@ build-backend = "hatchling.build"
 dev = [
     "mypy>=1.19.1",
     "poethepoet>=0.39.0",
+    "pre-commit>=4.5.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
@@ -47,6 +48,8 @@ check = ["lint", "format", "typecheck"]
 ci = ["lint", "typecheck", "test"]
 outdated = "uv pip list --outdated"
 upgrade = "uv lock --upgrade"
+pre-commit-install = "pre-commit install"
+pre-commit-run = "pre-commit run --all-files"
 
 [tool.ruff]
 line-length = 100
