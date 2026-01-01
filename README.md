@@ -178,6 +178,35 @@ The PDF Agent has access to these tools (defined with `@tool` decorators):
 
 ## Development
 
+### Pre-commit Hooks
+
+This project uses [pre-commit](https://pre-commit.com/) for automated code quality checks on every commit.
+
+**Setup (one-time):**
+
+```bash
+# Install pre-commit hooks
+uv run poe pre-commit-install
+```
+
+**Hooks included:**
+- **ruff** - Lint and auto-fix Python code
+- **ruff-format** - Format Python code
+- **trailing-whitespace** - Remove trailing whitespace
+- **end-of-file-fixer** - Ensure files end with newline
+- **check-yaml** - Validate YAML syntax
+- **check-added-large-files** - Prevent files > 1MB
+- **check-merge-conflict** - Detect merge conflict markers
+- **detect-private-key** - Prevent committing secrets
+- **mypy** - Type check Python code
+
+**Manual run:**
+
+```bash
+# Run all hooks on all files
+uv run poe pre-commit-run
+```
+
 ### Poe Tasks
 
 This project uses [poethepoet](https://github.com/nat-n/poethepoet) for task running:
@@ -185,11 +214,17 @@ This project uses [poethepoet](https://github.com/nat-n/poethepoet) for task run
 | Command | Description |
 |---------|-------------|
 | `uv run poe dev` | Run the PDF agent demo |
+| `uv run poe demo` | Run demo with W3C test PDF |
+| `uv run poe test` | Run unit tests |
+| `uv run poe test-cov` | Run tests with coverage report |
 | `uv run poe lint` | Check code with ruff |
 | `uv run poe format` | Format code with ruff |
 | `uv run poe fix` | Auto-fix linting issues |
 | `uv run poe typecheck` | Run mypy type checking |
 | `uv run poe check` | Run lint + format + typecheck |
+| `uv run poe ci` | Run lint + typecheck + test |
+| `uv run poe pre-commit-install` | Install pre-commit hooks |
+| `uv run poe pre-commit-run` | Run pre-commit on all files |
 | `uv run poe outdated` | Check for outdated packages |
 | `uv run poe upgrade` | Upgrade all packages |
 
@@ -201,6 +236,16 @@ uv run poe check
 
 # Auto-fix issues
 uv run poe fix
+```
+
+### Testing
+
+```bash
+# Run all tests
+uv run poe test
+
+# Run tests with coverage report
+uv run poe test-cov
 ```
 
 ### Type Checking
@@ -248,12 +293,24 @@ Claude's PDF support allows you to:
 
 ```
 langchain-anthropic-pdf-support/
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # GitHub Actions CI workflow
 ├── pdf_agent/              # Main package
 │   ├── __init__.py         # Public API exports
 │   ├── __main__.py         # CLI entry point
-│   ├── agent.py            # Agent creation and logging utilities
+│   ├── agent.py            # Agent creation
 │   ├── core.py             # Model initialization and direct analysis
+│   ├── logging_utils.py    # Pretty logging with emojis
+│   ├── prompts.py          # System prompts
 │   └── tools.py            # Agent tools (@tool decorated functions)
+├── tests/                  # Unit tests
+│   ├── conftest.py         # Shared fixtures
+│   ├── test_agent.py       # Agent tests
+│   ├── test_core.py        # Core module tests
+│   ├── test_logging_utils.py # Logging tests
+│   └── test_tools.py       # Tools tests
+├── .pre-commit-config.yaml # Pre-commit hooks configuration
 ├── pyproject.toml          # Project configuration and dependencies
 ├── uv.lock                 # Locked dependencies
 ├── .env                    # Environment variables (gitignored)
@@ -273,6 +330,10 @@ langchain-anthropic-pdf-support/
 ### Development
 - `ruff>=0.14.10` - Fast Python linter and formatter
 - `mypy>=1.19.1` - Static type checker
+- `pytest>=9.0.2` - Testing framework
+- `pytest-cov>=7.0.0` - Coverage reporting
+- `pytest-mock>=3.15.1` - Mocking utilities
+- `pre-commit>=4.5.1` - Git hooks framework
 - `poethepoet>=0.39.0` - Task runner
 
 ## Resources
