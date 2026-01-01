@@ -13,3 +13,8 @@ wheels/
 .env
 .env.local
 .env.*.local
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
