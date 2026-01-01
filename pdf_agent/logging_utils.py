@@ -109,3 +109,68 @@ def _log_content(content: str, prefix: str = "│  ", max_length: int = 200) -> 
         lines = content.split("\n")
         for line in lines:
             logger.info(f"{prefix}{line}")
+
+
+def log_header(title: str, use_agent: bool = True) -> None:
+    """Log a pretty header for the demo.
+
+    Args:
+        title: The title to display.
+        use_agent: Whether running in agent mode.
+    """
+    mode = "🤖 Agent Mode" if use_agent else "⚡ Direct Mode"
+    logger.info("")
+    logger.info("╔════════════════════════════════════════════════════════════╗")
+    logger.info(f"║  📄 {title:^54} ║")
+    logger.info(f"║  {mode:^56} ║")
+    logger.info("╚════════════════════════════════════════════════════════════╝")
+
+
+def log_analyzing(pdf_url: str) -> None:
+    """Log that we're analyzing a PDF.
+
+    Args:
+        pdf_url: URL of the PDF being analyzed.
+    """
+    logger.info("")
+    logger.info("┌────────────────────────────────────────────────────────────┐")
+    logger.info("│  🔍 Analyzing PDF...                                       │")
+    logger.info(f"│  📎 {pdf_url[:54]}{'...' if len(pdf_url) > 54 else '':<3} │")
+    logger.info("└────────────────────────────────────────────────────────────┘")
+
+
+def log_response(content: str) -> None:
+    """Log the final agent/model response with pretty formatting.
+
+    Args:
+        content: The response content to display.
+    """
+    logger.info("")
+    logger.info("╔════════════════════════════════════════════════════════════╗")
+    logger.info("║  📋 RESPONSE                                               ║")
+    logger.info("╠════════════════════════════════════════════════════════════╣")
+
+    # Split content into lines and log each
+    lines = content.split("\n")
+    for line in lines:
+        # Wrap long lines
+        while len(line) > 58:
+            logger.info(f"║  {line[:58]}")
+            line = line[58:]
+        logger.info(f"║  {line:<58} ║" if line.strip() else "║" + " " * 60 + "║")
+
+    logger.info("╚════════════════════════════════════════════════════════════╝")
+
+
+def log_error(error: str) -> None:
+    """Log an error message.
+
+    Args:
+        error: The error message.
+    """
+    logger.error("")
+    logger.error("╔════════════════════════════════════════════════════════════╗")
+    logger.error("║  ❌ ERROR                                                   ║")
+    logger.error("╠════════════════════════════════════════════════════════════╣")
+    logger.error(f"║  {error[:58]:<58} ║")
+    logger.error("╚════════════════════════════════════════════════════════════╝")

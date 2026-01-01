@@ -24,7 +24,13 @@ from .core import (
     download_and_analyze_pdf,
     get_model,
 )
-from .logging_utils import log_agent_messages
+from .logging_utils import (
+    log_agent_messages,
+    log_analyzing,
+    log_error,
+    log_header,
+    log_response,
+)
 from .prompts import PDF_AGENT_SYSTEM_PROMPT
 from .tools import (
     analyze_loaded_pdf,
@@ -39,8 +45,13 @@ from .tools import (
 __all__ = [
     # Agent
     "create_pdf_agent",
-    "log_agent_messages",
     "PDF_AGENT_SYSTEM_PROMPT",
+    # Logging utilities
+    "log_agent_messages",
+    "log_header",
+    "log_analyzing",
+    "log_response",
+    "log_error",
     # Direct analysis
     "analyze_pdf_from_url",
     "analyze_pdf_from_base64",

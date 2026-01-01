@@ -10,7 +10,13 @@ from dotenv import load_dotenv
 
 from .agent import create_pdf_agent
 from .core import analyze_pdf_from_url
-from .logging_utils import log_agent_messages
+from .logging_utils import (
+    log_agent_messages,
+    log_analyzing,
+    log_error,
+    log_header,
+    log_response,
+)
 
 # Load environment variables
 load_dotenv()
@@ -21,6 +27,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
 )
+
+logger = logging.getLogger(__name__)
 
 # Sample PDF for demo
 SAMPLE_PDF_URL = (
@@ -35,14 +43,10 @@ def run_agent_demo(pdf_url: str) -> None:
     Args:
         pdf_url: URL of the PDF to analyze.
     """
-    print("=" * 60)
-    print("PDF Agent Demo")
-    print("=" * 60)
+    log_header("PDF Document Analyzer", use_agent=True)
+    log_analyzing(pdf_url)
 
     agent = create_pdf_agent()
-
-    print(f"\nAnalyzing PDF: {pdf_url[:50]}...")
-    print("-" * 60)
 
     response = agent.invoke(
         {
@@ -61,8 +65,7 @@ def run_agent_demo(pdf_url: str) -> None:
     log_agent_messages(response["messages"])
 
     final_message = response["messages"][-1].content
-    print(f"\nAgent Response:\n{final_message}")
-    print("\n" + "=" * 60)
+    log_response(str(final_message))
 
 
 def run_direct_demo(pdf_url: str) -> None:
@@ -71,19 +74,14 @@ def run_direct_demo(pdf_url: str) -> None:
     Args:
         pdf_url: URL of the PDF to analyze.
     """
-    print("=" * 60)
-    print("Direct PDF Analysis Demo (no agent)")
-    print("=" * 60)
-
-    print(f"\nAnalyzing PDF: {pdf_url[:50]}...")
-    print("-" * 60)
+    log_header("PDF Document Analyzer", use_agent=False)
+    log_analyzing(pdf_url)
 
     result = analyze_pdf_from_url(
         url=pdf_url,
         question="What are the key findings in this document? Please summarize in 3-5 bullet points.",
     )
-    print(f"Response:\n{result}")
-    print("\n" + "=" * 60)
+    log_response(result)
 
 
 def main() -> None:
@@ -119,7 +117,7 @@ Examples:
         else:
             run_agent_demo(args.url)
     except Exception as e:
-        print(f"Error: {e}")
+        log_error(str(e))
         raise SystemExit(1) from e
 
 
