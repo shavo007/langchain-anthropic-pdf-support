@@ -1,0 +1,38 @@
+name: Evaluations
+
+on:
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: "Run with verbose output"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  eval:
+    name: Run Evaluations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run evaluations
+        run: |
+          if [ "${{ inputs.verbose }}" = "true" ]; then
+            uv run poe eval-verbose
+          else
+            uv run poe eval
+          fi
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
