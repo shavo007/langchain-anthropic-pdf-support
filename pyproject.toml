@@ -20,6 +20,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "deepeval>=3.7.8",
     "mypy>=1.19.1",
     "poethepoet>=0.39.0",
     "pre-commit>=4.5.1",
@@ -50,6 +51,8 @@ outdated = "uv pip list --outdated"
 upgrade = "uv lock --upgrade"
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run --all-files"
+eval = "deepeval test run evals/"
+eval-verbose = "deepeval test run evals/ -v"
 
 [tool.ruff]
 line-length = 100
