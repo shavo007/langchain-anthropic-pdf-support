@@ -1,0 +1,13 @@
+{
+	"servers": {
+		"Docs by LangChain": {
+			"url": "https://docs.langchain.com/mcp",
+			"type": "http"
+		},
+		"context7": {
+			"url": "https://mcp.context7.com/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
