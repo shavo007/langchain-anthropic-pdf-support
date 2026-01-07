@@ -271,15 +271,39 @@ response = agent.invoke({"messages": [...]})
 log_agent_messages(response["messages"])
 ```
 
-Output shows the complete execution flow:
+Example output from `uv run poe dev`:
 ```
-[1] HumanMessage - User's input
-[2] AIMessage - Model decides to call load_pdf_from_url
-[3] ToolMessage - Result from load_pdf_from_url (PDF cached)
-[4] AIMessage - Final response with PDF analysis (PDF injected via middleware)
+╔════════════════════════════════════════════════════════════╗
+║  📄                 PDF Document Analyzer                  ║
+║                        🤖 Agent Mode                       ║
+╚════════════════════════════════════════════════════════════╝
+
+┌─ [1] 👤 Human Message ─────────────────────────
+│  Please load this PDF: https://example.com/doc.pdf
+│  Then tell me what it's about and list 3 key points.
+└──────────────────────────────────────────────────
+
+┌─ [2] 🧠 AI Message ───────────────────────────
+│  🔧 Tool Calls (1):
+│     ├─ 🛠️  load_pdf_from_url
+│     │     Args: {'url': 'https://example.com/doc.pdf'}
+└──────────────────────────────────────────────────
+
+┌─ [3] ⚡ Tool Result ──────────────────────────
+│  🔧 Tool: load_pdf_from_url
+│  ✅ Status: Success
+│  📄 Result: Successfully loaded PDF from URL.
+└──────────────────────────────────────────────────
+
+┌─ [4] 🧠 AI Message ───────────────────────────
+│  ## Document Overview
+│  This document describes... (PDF analysis via middleware)
+└──────────────────────────────────────────────────
+
+✨ Execution complete! (2 API calls)
 ```
 
-This optimized flow reduces API calls by injecting the PDF content directly into the agent's context after loading, eliminating the need for a separate analysis tool call.
+This optimized flow reduces API calls from 4 to 2 by injecting PDF content directly into the agent's context after loading, eliminating the need for a separate analysis tool call.
 
 ## PDF Support Details
 
