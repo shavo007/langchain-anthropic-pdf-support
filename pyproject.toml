@@ -38,6 +38,7 @@ pdf-agent = "pdf_agent.__main__:main"
 
 [tool.poe.tasks]
 dev = "python -m pdf_agent"
+dev-debug = { cmd = "python -m pdf_agent", env = { ANTHROPIC_LOG = "debug" } }
 demo = "python -m pdf_agent https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 test = "pytest tests/ -v"
 test-cov = "pytest tests/ -v --cov=pdf_agent --cov-report=term-missing"
