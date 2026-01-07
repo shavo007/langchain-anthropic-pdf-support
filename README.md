@@ -172,9 +172,10 @@ The PDF Agent has access to these tools (defined with `@tool` decorators):
 | `load_pdf_from_url` | Load a PDF from a public URL |
 | `load_pdf_from_file` | Load a PDF from a local file path |
 | `load_pdf_from_base64` | Load a PDF from base64-encoded data |
-| `analyze_loaded_pdf` | Analyze a previously loaded PDF with a question |
 | `list_loaded_pdfs` | List all currently loaded PDFs |
 | `clear_pdf_cache` | Clear all PDFs from memory |
+
+**Note:** Once a PDF is loaded, the agent can directly analyze its contents without additional tool calls. The PDF content is automatically injected into the agent's context via middleware, enabling efficient single-pass analysis.
 
 ## Development
 
@@ -274,11 +275,11 @@ Output shows the complete execution flow:
 ```
 [1] HumanMessage - User's input
 [2] AIMessage - Model decides to call load_pdf_from_url
-[3] ToolMessage - Result from load_pdf_from_url
-[4] AIMessage - Model decides to call analyze_loaded_pdf
-[5] ToolMessage - Analysis result
-[6] AIMessage - Final response to user
+[3] ToolMessage - Result from load_pdf_from_url (PDF cached)
+[4] AIMessage - Final response with PDF analysis (PDF injected via middleware)
 ```
+
+This optimized flow reduces API calls by injecting the PDF content directly into the agent's context after loading, eliminating the need for a separate analysis tool call.
 
 ## PDF Support Details
 

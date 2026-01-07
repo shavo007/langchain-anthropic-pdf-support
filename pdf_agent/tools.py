@@ -6,13 +6,9 @@ load, cache, and analyze PDF documents.
 
 import base64
 from pathlib import Path
-from typing import cast
 
 import httpx
 from langchain.tools import tool
-from langchain_core.messages import HumanMessage
-
-from .core import get_model
 
 # In-memory cache for loaded PDFs (shared across agent sessions)
 _pdf_cache: dict[str, str] = {}
@@ -98,44 +94,18 @@ def load_pdf_from_base64(pdf_base64: str, identifier: str = "base64_pdf") -> str
         return "Failed to load PDF: Invalid base64 encoding"
 
 
-@tool(parse_docstring=True)
-def analyze_loaded_pdf(pdf_identifier: str, question: str) -> str:
-    """Analyze a previously loaded PDF document.
+def get_pdf_content(pdf_identifier: str) -> dict[str, str] | None:
+    """Get the PDF content for injection into agent context.
 
     Args:
-        pdf_identifier: The identifier (URL, file path, or custom name) used when loading the PDF.
-        question: The question to ask about the PDF content.
+        pdf_identifier: The identifier used when loading the PDF.
+
+    Returns:
+        Dict with 'data' key containing base64 PDF, or None if not found.
     """
     if pdf_identifier not in _pdf_cache:
-        return f"Error: No PDF loaded with identifier '{pdf_identifier}'. Please load the PDF first using load_pdf_from_url or load_pdf_from_file."
-
-    try:
-        model = get_model()
-        pdf_data = _pdf_cache[pdf_identifier]
-
-        message = HumanMessage(
-            content=[
-                {
-                    "type": "document",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "application/pdf",
-                        "data": pdf_data,
-                    },
-                },
-                {
-                    "type": "text",
-                    "text": question,
-                },
-            ]
-        )
-
-        response = model.invoke([message])
-        return cast(str, response.content)
-    except ValueError as e:
-        return f"Error analyzing PDF: {e}"
-    except httpx.RequestError as e:
-        return f"Error analyzing PDF: API request failed - {e}"
+        return None
+    return {"data": _pdf_cache[pdf_identifier], "identifier": pdf_identifier}
 
 
 @tool
