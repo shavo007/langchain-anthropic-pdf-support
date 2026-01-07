@@ -278,6 +278,8 @@ Example output from `uv run poe dev`:
 ║                        🤖 Agent Mode                       ║
 ╚════════════════════════════════════════════════════════════╝
 
+INFO - Anthropic API call: request_id=msg_01Tk2CJ1R1KqLLL3JGStedst, duration=4270.82ms
+
 ┌─ [1] 👤 Human Message ─────────────────────────
 │  Please load this PDF: https://example.com/doc.pdf
 │  Then tell me what it's about and list 3 key points.
@@ -295,6 +297,8 @@ Example output from `uv run poe dev`:
 │  📄 Result: Successfully loaded PDF from URL.
 └──────────────────────────────────────────────────
 
+INFO - Anthropic API call: request_id=msg_01XMHxjAsqEzksv1LU2eVKU3, duration=17872.93ms
+
 ┌─ [4] 🧠 AI Message ───────────────────────────
 │  ## Document Overview
 │  This document describes... (PDF analysis via middleware)
@@ -302,6 +306,8 @@ Example output from `uv run poe dev`:
 
 ✨ Execution complete! (2 API calls)
 ```
+
+**Request Logging**: Each API call logs the Anthropic `request_id` (useful for debugging with Anthropic support) and `duration` in milliseconds.
 
 This optimized flow reduces API calls from 4 to 2 by injecting PDF content directly into the agent's context after loading, eliminating the need for a separate analysis tool call.
 
