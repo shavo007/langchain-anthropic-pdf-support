@@ -21,7 +21,7 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 @pytest.fixture
 def evaluation_model() -> AnthropicModel:
     """Create an Anthropic model for evaluation."""
-    return AnthropicModel(model="claude-sonnet-4-20250514", temperature=0)
+    return AnthropicModel(model="claude-sonnet-4-5-20250929", temperature=0)
 
 
 @pytest.fixture
