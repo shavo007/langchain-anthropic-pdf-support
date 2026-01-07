@@ -68,7 +68,7 @@ class TestCreatePdfAgent:
             assert "clear_pdf_cache" in tool_names
 
     def test_create_pdf_agent_includes_middleware(self, mock_env_api_key: None) -> None:
-        """Test that the agent is created with PDF injection middleware."""
+        """Test that the agent is created with logging and PDF injection middleware."""
         with (
             patch("pdf_agent.agent.get_model") as mock_get_model,
             patch("pdf_agent.agent.create_agent") as mock_create_agent,
@@ -81,7 +81,7 @@ class TestCreatePdfAgent:
 
             call_kwargs = mock_create_agent.call_args[1]
             assert "middleware" in call_kwargs
-            assert len(call_kwargs["middleware"]) == 1
+            assert len(call_kwargs["middleware"]) == 2
 
 
 class TestSystemPrompt:

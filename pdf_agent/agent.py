@@ -4,11 +4,17 @@ This module provides the agent factory for creating
 the PDF analysis agent.
 """
 
+import logging
+import time
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from langchain.agents import create_agent
-from langchain.agents.middleware import ModelRequest, ModelResponse, wrap_model_call
+from langchain.agents.middleware import (
+    ModelRequest,
+    ModelResponse,
+    wrap_model_call,
+)
 from langchain_core.messages import AIMessage, HumanMessage
 
 from .core import get_model
@@ -24,6 +30,38 @@ from .tools import (
 
 if TYPE_CHECKING:
     from langgraph.graph.state import CompiledStateGraph
+
+logger = logging.getLogger(__name__)
+
+
+@wrap_model_call
+def log_request_metrics(
+    request: ModelRequest,
+    handler: Callable[[ModelRequest], ModelResponse],
+) -> ModelResponse:
+    """Log request duration and request ID for Anthropic API calls."""
+    start_time = time.perf_counter()
+
+    response = handler(request)
+
+    duration_ms = (time.perf_counter() - start_time) * 1000
+
+    # Extract request_id from the response
+    # ModelResponse.result is a list[BaseMessage] containing the AI response
+    request_id = None
+    if response.result:
+        last_message = response.result[-1]
+        if isinstance(last_message, AIMessage):
+            metadata = getattr(last_message, "response_metadata", {})
+            request_id = metadata.get("id")
+
+    logger.info(
+        "Anthropic API call: request_id=%s, duration=%.2fms",
+        request_id,
+        duration_ms,
+    )
+
+    return response
 
 
 @wrap_model_call
@@ -95,7 +133,7 @@ def create_pdf_agent() -> "CompiledStateGraph[Any, Any]":
         model,
         tools=tools,
         system_prompt=PDF_AGENT_SYSTEM_PROMPT,
-        middleware=[inject_pdf_content],
+        middleware=[log_request_metrics, inject_pdf_content],
     )
 
     return agent
