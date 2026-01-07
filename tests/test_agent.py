@@ -56,17 +56,32 @@ class TestCreatePdfAgent:
             call_kwargs = mock_create_agent.call_args[1]
             tools = call_kwargs["tools"]
 
-            # Check that we have all 6 tools
-            assert len(tools) == 6
+            # Check that we have all 5 tools (analyze_loaded_pdf removed - now uses middleware)
+            assert len(tools) == 5
 
             # Get tool names
             tool_names = [t.name for t in tools]
             assert "load_pdf_from_url" in tool_names
             assert "load_pdf_from_file" in tool_names
             assert "load_pdf_from_base64" in tool_names
-            assert "analyze_loaded_pdf" in tool_names
             assert "list_loaded_pdfs" in tool_names
             assert "clear_pdf_cache" in tool_names
+
+    def test_create_pdf_agent_includes_middleware(self, mock_env_api_key: None) -> None:
+        """Test that the agent is created with PDF injection middleware."""
+        with (
+            patch("pdf_agent.agent.get_model") as mock_get_model,
+            patch("pdf_agent.agent.create_agent") as mock_create_agent,
+        ):
+            mock_model = MagicMock()
+            mock_get_model.return_value = mock_model
+            mock_create_agent.return_value = MagicMock()
+
+            create_pdf_agent()
+
+            call_kwargs = mock_create_agent.call_args[1]
+            assert "middleware" in call_kwargs
+            assert len(call_kwargs["middleware"]) == 1
 
 
 class TestSystemPrompt:
@@ -85,7 +100,8 @@ class TestSystemPrompt:
         """Test that the system prompt mentions the available tools."""
         assert "load_pdf_from_url" in PDF_AGENT_SYSTEM_PROMPT
         assert "load_pdf_from_file" in PDF_AGENT_SYSTEM_PROMPT
-        assert "analyze_loaded_pdf" in PDF_AGENT_SYSTEM_PROMPT
+        # analyze_loaded_pdf is no longer a tool - PDFs are analyzed directly via middleware
+        assert "directly" in PDF_AGENT_SYSTEM_PROMPT.lower()
 
     def test_system_prompt_mentions_capabilities(self) -> None:
         """Test that the system prompt describes agent capabilities."""

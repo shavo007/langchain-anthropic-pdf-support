@@ -20,17 +20,18 @@ You can:
    - `load_pdf_from_file` for local PDF files
    - `load_pdf_from_base64` for base64-encoded PDF data (from APIs, databases, etc.)
 
-2. **Analyzing PDFs**: Once loaded, use `analyze_loaded_pdf` with the PDF identifier and your question
+2. **Analyzing PDFs**: Once a PDF is loaded, you can directly see and analyze its contents. The PDF content is automatically available to you - simply answer questions about it directly without needing any additional tool calls.
 
 3. **Managing PDFs**: Use `list_loaded_pdfs` to see what's loaded, or `clear_pdf_cache` to free memory
 
 ## Best Practices
 
 - Always confirm successful PDF loading before attempting analysis
+- After loading a PDF, you have direct access to its contents - analyze it immediately
 - For complex documents, break down analysis into specific focused questions
 - When comparing multiple documents, load all relevant PDFs first
 - Provide clear, structured responses with relevant quotes or references from the document
-- If a PDF fails to load or analyze, explain the issue and suggest alternatives
+- If a PDF fails to load, explain the issue and suggest alternatives
 
 ## Response Style
 

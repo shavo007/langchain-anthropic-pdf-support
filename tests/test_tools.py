@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from pdf_agent.tools import (
-    analyze_loaded_pdf,
     clear_pdf_cache,
     get_pdf_cache,
+    get_pdf_content,
     list_loaded_pdfs,
     load_pdf_from_base64,
     load_pdf_from_file,
@@ -133,39 +133,24 @@ class TestLoadPdfFromBase64:
         assert "Invalid base64" in result
 
 
-class TestAnalyzeLoadedPdf:
-    """Tests for analyze_loaded_pdf tool."""
+class TestGetPdfContent:
+    """Tests for get_pdf_content function."""
 
-    def test_analyze_loaded_pdf_success(
-        self,
-        mock_env_api_key: None,
-        sample_pdf_base64: str,
-    ) -> None:
-        """Test successful PDF analysis."""
-        # Pre-load a PDF
+    def test_get_pdf_content_success(self, sample_pdf_base64: str) -> None:
+        """Test retrieving PDF content from cache."""
         get_pdf_cache()["test_pdf"] = sample_pdf_base64
 
-        with patch("pdf_agent.tools.get_model") as mock_get_model:
-            mock_model = MagicMock()
-            mock_response = MagicMock()
-            mock_response.content = "Analysis result"
-            mock_model.invoke.return_value = mock_response
-            mock_get_model.return_value = mock_model
+        result = get_pdf_content("test_pdf")
 
-            result = analyze_loaded_pdf.invoke(
-                {"pdf_identifier": "test_pdf", "question": "What is this?"}
-            )
+        assert result is not None
+        assert result["data"] == sample_pdf_base64
+        assert result["identifier"] == "test_pdf"
 
-            assert result == "Analysis result"
+    def test_get_pdf_content_not_found(self) -> None:
+        """Test that None is returned for non-existent PDF."""
+        result = get_pdf_content("nonexistent")
 
-    def test_analyze_loaded_pdf_not_found(self) -> None:
-        """Test error when PDF is not loaded."""
-        result = analyze_loaded_pdf.invoke(
-            {"pdf_identifier": "nonexistent", "question": "What is this?"}
-        )
-
-        assert "Error: No PDF loaded" in result
-        assert "nonexistent" in result
+        assert result is None
 
 
 class TestListLoadedPdfs:

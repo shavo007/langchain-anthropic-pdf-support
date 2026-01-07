@@ -33,9 +33,9 @@ from .logging_utils import (
 )
 from .prompts import PDF_AGENT_SYSTEM_PROMPT
 from .tools import (
-    analyze_loaded_pdf,
     clear_pdf_cache,
     get_pdf_cache,
+    get_pdf_content,
     list_loaded_pdfs,
     load_pdf_from_base64,
     load_pdf_from_file,
@@ -62,8 +62,8 @@ __all__ = [
     "load_pdf_from_url",
     "load_pdf_from_file",
     "load_pdf_from_base64",
-    "analyze_loaded_pdf",
     "list_loaded_pdfs",
     "clear_pdf_cache",
     "get_pdf_cache",
+    "get_pdf_content",
 ]
