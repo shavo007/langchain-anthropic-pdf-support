@@ -20,6 +20,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "bandit>=1.8.0",
     "deepeval>=3.7.8",
     "mypy>=1.19.1",
     "poethepoet>=0.39.0",
@@ -46,6 +47,7 @@ lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
 typecheck = "mypy pdf_agent"
+security = "bandit -r pdf_agent/"
 check = ["lint", "format", "typecheck"]
 ci = ["lint", "typecheck", "test"]
 outdated = "uv pip list --outdated"
