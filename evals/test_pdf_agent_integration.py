@@ -5,7 +5,13 @@ evaluating the quality of responses using DeepEval metrics.
 
 Run with: uv run poe eval
 Or directly: deepeval test run evals/test_pdf_agent_integration.py
+
+Environment variables:
+- PDF_AGENT_MODEL: Set to "sonnet" for higher-capability agent calls
+- EVAL_MODEL: Set to "sonnet" for higher-capability evaluation calls
 """
+
+import os
 
 import pytest
 from deepeval import assert_test
@@ -17,7 +23,24 @@ from deepeval.metrics import (
 from deepeval.models import AnthropicModel
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
-from pdf_agent import create_pdf_agent, get_pdf_cache
+from pdf_agent import DEFAULT_MODEL, SONNET_MODEL, create_pdf_agent, get_pdf_cache
+
+
+def get_eval_model_name() -> str:
+    """Get the model name for evaluations.
+
+    Uses EVAL_MODEL environment variable if set:
+    - "sonnet" -> uses Claude Sonnet 4.5 for higher-capability evaluations
+    - other values -> used as-is
+    - not set -> uses default Haiku model (cost-effective)
+    """
+    env_model = os.environ.get("EVAL_MODEL", "").lower()
+    if env_model == "sonnet":
+        return SONNET_MODEL
+    elif env_model:
+        return env_model
+    return DEFAULT_MODEL
+
 
 # Test PDF: Anthropic's Claude 3.5 Model Card Addendum
 TEST_PDF_URL = "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
@@ -52,7 +75,7 @@ PDF_CONTEXT = [
 @pytest.fixture(scope="module")
 def evaluation_model() -> AnthropicModel:
     """Create an Anthropic model for evaluation."""
-    return AnthropicModel(model="claude-sonnet-4-5-20250929", temperature=0)
+    return AnthropicModel(model=get_eval_model_name(), temperature=0)
 
 
 @pytest.fixture(scope="module")

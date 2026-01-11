@@ -7,6 +7,8 @@ Run with: deepeval test run evals/test_pdf_agent_evals.py
 Or with pytest: pytest evals/test_pdf_agent_evals.py -v
 """
 
+import os
+
 import pytest
 from deepeval import assert_test
 from deepeval.metrics import (
@@ -17,11 +19,29 @@ from deepeval.metrics import (
 from deepeval.models import AnthropicModel
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
+from pdf_agent import DEFAULT_MODEL, SONNET_MODEL
+
+
+def get_eval_model_name() -> str:
+    """Get the model name for evaluations.
+
+    Uses EVAL_MODEL environment variable if set:
+    - "sonnet" -> uses Claude Sonnet 4.5 for higher-capability evaluations
+    - other values -> used as-is
+    - not set -> uses default Haiku model (cost-effective)
+    """
+    env_model = os.environ.get("EVAL_MODEL", "").lower()
+    if env_model == "sonnet":
+        return SONNET_MODEL
+    elif env_model:
+        return env_model
+    return DEFAULT_MODEL
+
 
 @pytest.fixture
 def evaluation_model() -> AnthropicModel:
     """Create an Anthropic model for evaluation."""
-    return AnthropicModel(model="claude-sonnet-4-5-20250929", temperature=0)
+    return AnthropicModel(model=get_eval_model_name(), temperature=0)
 
 
 @pytest.fixture

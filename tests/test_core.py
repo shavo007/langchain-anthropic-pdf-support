@@ -27,12 +27,12 @@ class TestGetModel:
             mock_chat.assert_called_once()
 
     def test_get_model_uses_default_model_name(self, mock_env_api_key: None) -> None:
-        """Test that get_model uses the default model name."""
+        """Test that get_model uses the default model name (Haiku for demos)."""
         with patch("pdf_agent.core.ChatAnthropic") as mock_chat:
             mock_chat.return_value = MagicMock()
             get_model()
             call_kwargs = mock_chat.call_args[1]
-            assert "claude-sonnet-4-5-20250929" in call_kwargs["model"]
+            assert "claude-3-5-haiku-20241022" in call_kwargs["model"]
 
     def test_get_model_accepts_custom_model_name(self, mock_env_api_key: None) -> None:
         """Test that get_model accepts a custom model name."""
