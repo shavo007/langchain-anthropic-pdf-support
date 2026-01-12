@@ -1,0 +1,6 @@
+{
+    "mypy-type-checker.args": [
+        "--config-file=${workspaceFolder}/pyproject.toml"
+    ],
+    "python.analysis.typeCheckingMode": "off"
+}

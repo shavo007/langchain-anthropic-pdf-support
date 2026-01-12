@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthropic Claude Models - Release Timeline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #e4e4e4;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #e94560, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+    .family-section {
+      margin-bottom: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .family-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid;
+    }
+    .family-header.opus {
+      border-color: #e94560;
+    }
+    .family-header.sonnet {
+      border-color: #00d9ff;
+    }
+    .family-header.haiku {
+      border-color: #00ff88;
+    }
+    .family-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-right: 16px;
+    }
+    .family-icon.opus {
+      background: linear-gradient(135deg, #e94560, #ff6b6b);
+    }
+    .family-icon.sonnet {
+      background: linear-gradient(135deg, #00d9ff, #0099cc);
+    }
+    .family-icon.haiku {
+      background: linear-gradient(135deg, #00ff88, #00cc6a);
+    }
+    .family-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .family-name.opus {
+      color: #e94560;
+    }
+    .family-name.sonnet {
+      color: #00d9ff;
+    }
+    .family-name.haiku {
+      color: #00ff88;
+    }
+    .model-count {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .timeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .model-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      min-width: 240px;
+      flex: 1;
+      max-width: 320px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .model-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .model-card.opus {
+      border-left: 3px solid #e94560;
+    }
+    .model-card.sonnet {
+      border-left: 3px solid #00d9ff;
+    }
+    .model-card.haiku {
+      border-left: 3px solid #00ff88;
+    }
+    .model-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .model-id {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.7rem;
+      color: #888;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+    .model-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-icon {
+      font-size: 14px;
+      width: 20px;
+    }
+    .info-value {
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    .info-value.opus {
+      color: #e94560;
+    }
+    .info-value.sonnet {
+      color: #00d9ff;
+    }
+    .info-value.haiku {
+      color: #00ff88;
+    }
+    .context-limits {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .limits-header {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .limits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .limit-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .limit-label {
+      font-size: 0.65rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .limit-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #a78bfa;
+    }
+    .pricing {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .pricing-header {
+      font-size: 0.7rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .pricing-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-label {
+      font-size: 0.65rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .pricing-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffd700;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #666;
+      font-size: 0.85rem;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .stat-box {
+      text-align: center;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 4px;
+    }
+    .pricing-note {
+      text-align: center;
+      color: #666;
+      font-size: 0.75rem;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Anthropic Claude Models</h1>
+    <p class="subtitle">Release Timeline by Model Family</p>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-value">21</div>
+        <div class="stat-label">Total Models</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Model Families</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">2024-2025</div>
+        <div class="stat-label">Release Period</div>
+      </div>
+    </div>
+
+    <p class="pricing-note">Pricing shown per 1M tokens (USD) | Context limits in tokens</p>
+
+    <!-- Claude Opus Family -->
+    <div class="family-section">
+      <div class="family-header opus">
+        <div class="family-icon opus">🎭</div>
+        <div class="family-name opus">Claude Opus</div>
+        <div class="model-count">4 unique versions</div>
+      </div>
+      <div class="timeline">
+        <div class="model-card opus">
+          <div class="model-name">Claude Opus 3</div>
+          <div class="model-id">claude-3-opus-20240229</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value opus">2024-02-29</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">4K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$75.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$1.50</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$18.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card opus">
+          <div class="model-name">Claude Opus 4</div>
+          <div class="model-id">claude-opus-4-20250514</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value opus">2025-05-22</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">32K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$75.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$1.50</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$18.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card opus">
+          <div class="model-name">Claude Opus 4.1</div>
+          <div class="model-id">claude-opus-4-1-20250805</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value opus">2025-08-05</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">32K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$75.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$1.50</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$18.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card opus">
+          <div class="model-name">Claude Opus 4.5</div>
+          <div class="model-id">claude-opus-4-5-20251101</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value opus">2025-11-01</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">64K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$5.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$25.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.50</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$6.25</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claude Sonnet Family -->
+    <div class="family-section">
+      <div class="family-header sonnet">
+        <div class="family-icon sonnet">🎵</div>
+        <div class="family-name sonnet">Claude Sonnet</div>
+        <div class="model-count">6 unique versions</div>
+      </div>
+      <div class="timeline">
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 3</div>
+          <div class="model-id">claude-3-sonnet-20240229</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2024-03-04</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">4K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 3.5</div>
+          <div class="model-id">claude-3-5-sonnet-20240620</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2024-06-20</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">8K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$3.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 3.5 v2</div>
+          <div class="model-id">claude-3-5-sonnet-20241022</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2024-10-22</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">8K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$3.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 3.7</div>
+          <div class="model-id">claude-3-7-sonnet-20250219</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2025-02-19</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">64K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$3.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 4</div>
+          <div class="model-id">claude-sonnet-4-20250514</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2025-05-22</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">64K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$3.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card sonnet">
+          <div class="model-name">Claude Sonnet 4.5</div>
+          <div class="model-id">claude-sonnet-4-5-20250929</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value sonnet">2025-09-29</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">64K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$3.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$15.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$3.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claude Haiku Family -->
+    <div class="family-section">
+      <div class="family-header haiku">
+        <div class="family-icon haiku">🍃</div>
+        <div class="family-name haiku">Claude Haiku</div>
+        <div class="model-count">3 unique versions</div>
+      </div>
+      <div class="timeline">
+        <div class="model-card haiku">
+          <div class="model-name">Claude Haiku 3</div>
+          <div class="model-id">claude-3-haiku-20240307</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value haiku">2024-03-13</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">4K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$0.25</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$1.25</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.03</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$0.30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card haiku">
+          <div class="model-name">Claude Haiku 3.5</div>
+          <div class="model-id">claude-3-5-haiku-20241022</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value haiku">2024-10-22</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">8K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$0.80</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$4.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.08</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$1.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="model-card haiku">
+          <div class="model-name">Claude Haiku 4.5</div>
+          <div class="model-id">claude-haiku-4-5-20251001</div>
+          <div class="model-info">
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-value haiku">2025-10-15</span>
+            </div>
+          </div>
+          <div class="context-limits">
+            <div class="limits-header">Context Limits</div>
+            <div class="limits-grid">
+              <div class="limit-item">
+                <span class="limit-label">Context</span>
+                <span class="limit-value">200K</span>
+              </div>
+              <div class="limit-item">
+                <span class="limit-label">Max Output</span>
+                <span class="limit-value">64K</span>
+              </div>
+            </div>
+          </div>
+          <div class="pricing">
+            <div class="pricing-header">Pricing</div>
+            <div class="pricing-grid">
+              <div class="pricing-item">
+                <span class="pricing-label">Input</span>
+                <span class="pricing-value">$1.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Output</span>
+                <span class="pricing-value">$5.00</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Read</span>
+                <span class="pricing-value">$0.10</span>
+              </div>
+              <div class="pricing-item">
+                <span class="pricing-label">Cache Write</span>
+                <span class="pricing-value">$1.25</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Data extracted from models.json | Generated on 2026-01-12
+    </div>
+  </div>
+</body>
+</html>
