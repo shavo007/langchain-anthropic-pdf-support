@@ -11,6 +11,8 @@ Environment variables:
 - EVAL_MODEL: Set to "sonnet" for higher-capability evaluation calls
 """
 
+# mypy: ignore-errors
+
 import os
 
 import pytest
@@ -19,9 +21,10 @@ from deepeval.metrics import (
     AnswerRelevancyMetric,
     FaithfulnessMetric,
     GEval,
+    ToolCorrectnessMetric,
 )
 from deepeval.models import AnthropicModel
-from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall
 
 from pdf_agent import DEFAULT_MODEL, SONNET_MODEL, create_pdf_agent, get_pdf_cache
 
@@ -129,12 +132,42 @@ def helpfulness_metric(evaluation_model: AnthropicModel) -> GEval:
     )
 
 
+@pytest.fixture
+def tool_correctness_metric(evaluation_model: AnthropicModel) -> ToolCorrectnessMetric:
+    """Create tool correctness metric with Anthropic model."""
+    return ToolCorrectnessMetric(threshold=0.7, model=evaluation_model)
+
+
 def invoke_agent(agent, question: str) -> str:
     """Invoke the PDF agent and return the final response."""
     response = agent.invoke({"messages": [{"role": "user", "content": question}]})
     # Get the last AI message content
     final_message = response["messages"][-1]
     return final_message.content
+
+
+def invoke_agent_with_tools(agent, question: str) -> tuple[str, list[ToolCall]]:
+    """Invoke the PDF agent and return response + tool calls.
+
+    Args:
+        agent: The PDF agent instance.
+        question: The user's question.
+
+    Returns:
+        Tuple of (final response text, list of ToolCall objects).
+    """
+    response = agent.invoke({"messages": [{"role": "user", "content": question}]})
+
+    # Extract tool calls from all messages
+    tools_called = []
+    for msg in response["messages"]:
+        if hasattr(msg, "tool_calls") and msg.tool_calls:
+            for tc in msg.tool_calls:
+                tools_called.append(ToolCall(name=tc["name"]))
+
+    # Get final response
+    final_message = response["messages"][-1]
+    return final_message.content, tools_called
 
 
 class TestPDFAgentIntegrationRelevancy:
@@ -290,3 +323,42 @@ class TestPDFAgentIntegrationCombined:
             test_case,
             [answer_relevancy_metric, faithfulness_metric, helpfulness_metric],
         )
+
+
+class TestPDFAgentToolCorrectness:
+    """Test cases for tool correctness evaluation."""
+
+    def test_url_loading_tool_correctness(
+        self,
+        pdf_agent,
+        tool_correctness_metric: ToolCorrectnessMetric,
+    ) -> None:
+        """Test that agent uses load_pdf_from_url for URL-based requests."""
+        question = f"Load this PDF: {TEST_PDF_URL} What is it about?"
+        actual_output, tools_called = invoke_agent_with_tools(pdf_agent, question)
+
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_output,
+            tools_called=tools_called,
+            expected_tools=[ToolCall(name="load_pdf_from_url")],
+        )
+        assert_test(test_case, [tool_correctness_metric])
+
+    def test_list_pdfs_tool_correctness(
+        self,
+        pdf_agent,
+        tool_correctness_metric: ToolCorrectnessMetric,
+    ) -> None:
+        """Test that agent uses list_loaded_pdfs when asked."""
+        # Ask directly without prior context - agent must call the tool
+        question = "Use the list_loaded_pdfs tool to show me what PDFs are currently loaded."
+        actual_output, tools_called = invoke_agent_with_tools(pdf_agent, question)
+
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_output,
+            tools_called=tools_called,
+            expected_tools=[ToolCall(name="list_loaded_pdfs")],
+        )
+        assert_test(test_case, [tool_correctness_metric])
