@@ -13,12 +13,21 @@ import httpx
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
+# Default model - using Haiku for cost-effective demos
+# Can be overridden via PDF_AGENT_MODEL environment variable
+DEFAULT_MODEL = "claude-3-5-haiku-20241022"
 
-def get_model(model_name: str = "claude-sonnet-4-5-20250929") -> ChatAnthropic:
+# Higher-capability model for production use
+SONNET_MODEL = "claude-sonnet-4-5-20250929"
+
+
+def get_model(model_name: str | None = None) -> ChatAnthropic:
     """Initialize the Anthropic Claude model.
 
     Args:
-        model_name: The Claude model to use. Defaults to Claude Sonnet 4.5.
+        model_name: The Claude model to use. If not provided, uses the
+            PDF_AGENT_MODEL environment variable, or defaults to Claude Sonnet 4.5.
+            Set PDF_AGENT_MODEL=haiku to use the cheaper Haiku model for demos.
 
     Returns:
         Configured ChatAnthropic instance.
@@ -31,6 +40,16 @@ def get_model(model_name: str = "claude-sonnet-4-5-20250929") -> ChatAnthropic:
             "ANTHROPIC_API_KEY environment variable must be set. "
             "Get your API key from https://console.anthropic.com/"
         )
+
+    # Determine model: explicit parameter > environment variable > default
+    if model_name is None:
+        env_model = os.environ.get("PDF_AGENT_MODEL", "").lower()
+        if env_model == "sonnet":
+            model_name = SONNET_MODEL
+        elif env_model:
+            model_name = env_model
+        else:
+            model_name = DEFAULT_MODEL
 
     return ChatAnthropic(model=model_name)  # type: ignore[call-arg]
 

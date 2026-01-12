@@ -18,6 +18,8 @@ Example usage:
 
 from .agent import create_pdf_agent
 from .core import (
+    DEFAULT_MODEL,
+    SONNET_MODEL,
     analyze_pdf_from_base64,
     analyze_pdf_from_file,
     analyze_pdf_from_url,
@@ -46,6 +48,9 @@ __all__ = [
     # Agent
     "create_pdf_agent",
     "PDF_AGENT_SYSTEM_PROMPT",
+    # Model constants
+    "DEFAULT_MODEL",
+    "SONNET_MODEL",
     # Logging utilities
     "log_agent_messages",
     "log_header",
