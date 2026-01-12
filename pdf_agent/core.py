@@ -13,6 +13,8 @@ import httpx
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage
 
+from pdf_agent.logging_utils import log_model_capabilities
+
 # Default model - using Haiku for cost-effective demos
 # Can be overridden via PDF_AGENT_MODEL environment variable
 DEFAULT_MODEL = "claude-3-5-haiku-20241022"
@@ -51,7 +53,10 @@ def get_model(model_name: str | None = None) -> ChatAnthropic:
         else:
             model_name = DEFAULT_MODEL
 
-    return ChatAnthropic(model=model_name)  # type: ignore[call-arg]
+    model = ChatAnthropic(model=model_name)  # type: ignore[call-arg]
+    if model.profile:
+        log_model_capabilities(model_name, dict(model.profile))
+    return model
 
 
 def analyze_pdf_from_url(url: str, question: str) -> str:

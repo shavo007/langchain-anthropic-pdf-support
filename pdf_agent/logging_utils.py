@@ -174,3 +174,39 @@ def log_error(error: str) -> None:
     logger.error("╠════════════════════════════════════════════════════════════╣")
     logger.error(f"║  {error[:58]:<58} ║")
     logger.error("╚════════════════════════════════════════════════════════════╝")
+
+
+def log_model_capabilities(model_name: str, profile: dict[str, Any]) -> None:
+    """Log the model's capabilities from its profile.
+
+    Args:
+        model_name: Name of the model.
+        profile: The model's capability profile dictionary.
+    """
+    logger.info("")
+    logger.info("╔════════════════════════════════════════════════════════════╗")
+    logger.info(f"║  🧠 Model: {model_name:<48} ║")
+    logger.info("╠════════════════════════════════════════════════════════════╣")
+    logger.info("║  📊 Capabilities:                                          ║")
+
+    # Token limits
+    max_in = profile.get("max_input_tokens", "N/A")
+    max_out = profile.get("max_output_tokens", "N/A")
+    logger.info(f"║     max_input_tokens:  {str(max_in):<35} ║")
+    logger.info(f"║     max_output_tokens: {str(max_out):<35} ║")
+
+    # Key features
+    features = [
+        ("pdf_inputs", "PDF support"),
+        ("image_inputs", "Image support"),
+        ("tool_calling", "Tool calling"),
+        ("reasoning_output", "Extended thinking"),
+    ]
+
+    logger.info("║  🔧 Features:                                              ║")
+    for key, label in features:
+        value = profile.get(key, False)
+        status = "✓" if value else "✗"
+        logger.info(f"║     {status} {label:<53} ║")
+
+    logger.info("╚════════════════════════════════════════════════════════════╝")
