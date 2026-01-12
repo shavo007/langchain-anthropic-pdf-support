@@ -46,17 +46,20 @@ def log_request_metrics(
 
     duration_ms = (time.perf_counter() - start_time) * 1000
 
-    # Extract request_id from the response
+    # Extract request_id and model from the response
     # ModelResponse.result is a list[BaseMessage] containing the AI response
     request_id = None
+    model_name = None
     if response.result:
         last_message = response.result[-1]
         if isinstance(last_message, AIMessage):
             metadata = getattr(last_message, "response_metadata", {})
             request_id = metadata.get("id")
+            model_name = metadata.get("model")
 
     logger.info(
-        "Anthropic API call: request_id=%s, duration=%.2fms",
+        "Anthropic API call: model=%s, request_id=%s, duration=%.2fms",
+        model_name,
         request_id,
         duration_ms,
     )
@@ -113,13 +116,17 @@ def inject_pdf_content(
     return handler(request)
 
 
-def create_pdf_agent() -> "CompiledStateGraph[Any, Any]":
+def create_pdf_agent(model_name: str | None = None) -> "CompiledStateGraph[Any, Any]":
     """Create a LangChain agent specialized for PDF document analysis.
+
+    Args:
+        model_name: Optional model name to use. Defaults to Claude Sonnet 4.5.
 
     Returns:
         Configured agent instance with PDF analysis tools.
     """
-    model = get_model()
+    model = get_model(model_name) if model_name else get_model()
+    logger.info("Creating PDF agent with model: %s", model.model)
 
     tools: list[Any] = [
         load_pdf_from_url,
