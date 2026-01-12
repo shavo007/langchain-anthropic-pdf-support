@@ -64,6 +64,11 @@ uv run poe eval          # Run all DeepEval tests
 uv run poe eval-verbose  # Run with verbose output (-v flag)
 ```
 
+Rate limiting is handled via retry configuration in `evals/conftest.py`:
+- `DEEPEVAL_RETRY_MAX_ATTEMPTS=5` - Number of retry attempts
+- `DEEPEVAL_RETRY_INITIAL_SECONDS=10` - Initial delay before retry (with exponential backoff)
+- `DEEPEVAL_RETRY_CAP_SECONDS=60` - Maximum delay cap
+
 ### Type checking
 ```bash
 uv run poe typecheck
@@ -150,7 +155,7 @@ Located in `evals/` directory:
 - Uses module-scoped fixtures to reduce API calls
 - Three test classes: `TestPDFAgentIntegrationRelevancy`, `TestPDFAgentIntegrationFaithfulness`, `TestPDFAgentIntegrationHelpfulness`, `TestPDFAgentIntegrationCombined`
 
-Both evaluation files use `claude-sonnet-4-5-20250929` as the judge model for metrics. Run with `uv run poe eval` or `uv run poe eval-verbose`.
+Both evaluation files use `claude-3-5-haiku-20241022` as the default judge model for metrics (override with `EVAL_MODEL=sonnet`). Rate limiting is handled via retry configuration with exponential backoff in `evals/conftest.py`. Run with `uv run poe eval` or `uv run poe eval-verbose`.
 
 ## Key Architecture Decisions
 
