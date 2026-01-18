@@ -290,3 +290,83 @@ class TestPDFAgentIntegrationCombined:
             test_case,
             [answer_relevancy_metric, faithfulness_metric, helpfulness_metric],
         )
+
+
+class TestPDFAgentNegativeCases:
+    """Negative test cases - agent should acknowledge when it doesn't know."""
+
+    @pytest.fixture
+    def appropriate_uncertainty_metric(self, evaluation_model: AnthropicModel) -> GEval:
+        """Create metric for evaluating appropriate uncertainty acknowledgment."""
+        return GEval(
+            name="AppropriateUncertainty",
+            criteria=(
+                "Evaluate if the response appropriately acknowledges uncertainty or "
+                "lack of information. The response should NOT make up information. "
+                "Consider: Does it clearly state when information is not available? "
+                "Does it avoid hallucinating or fabricating details? "
+                "Does it suggest alternatives (like loading a PDF or checking the document)?"
+            ),
+            evaluation_params=[
+                LLMTestCaseParams.INPUT,
+                LLMTestCaseParams.ACTUAL_OUTPUT,
+            ],
+            model=evaluation_model,
+            threshold=0.7,
+        )
+
+    def test_question_about_missing_content(
+        self,
+        pdf_agent,
+        appropriate_uncertainty_metric: GEval,
+    ) -> None:
+        """Test that agent acknowledges when asked about content NOT in the PDF."""
+        # Load the PDF first
+        question_load = f"Load this PDF: {TEST_PDF_URL}"
+        invoke_agent(pdf_agent, question_load)
+
+        # Ask about something definitely NOT in the Claude model card
+        question = "What is the recipe for chocolate cake mentioned in this document?"
+        actual_output = invoke_agent(pdf_agent, question)
+
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_output,
+        )
+        assert_test(test_case, [appropriate_uncertainty_metric])
+
+    def test_question_without_pdf_loaded(
+        self,
+        pdf_agent,
+        appropriate_uncertainty_metric: GEval,
+    ) -> None:
+        """Test that agent acknowledges when no PDF is loaded."""
+        # Don't load any PDF - cache is cleared by autouse fixture
+        question = "What are the main findings in the document?"
+        actual_output = invoke_agent(pdf_agent, question)
+
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_output,
+        )
+        assert_test(test_case, [appropriate_uncertainty_metric])
+
+    def test_question_about_different_topic(
+        self,
+        pdf_agent,
+        appropriate_uncertainty_metric: GEval,
+    ) -> None:
+        """Test that agent doesn't fabricate info about unrelated topics."""
+        # Load the PDF (about Claude models)
+        question_load = f"Load this PDF: {TEST_PDF_URL}"
+        invoke_agent(pdf_agent, question_load)
+
+        # Ask about completely unrelated topic
+        question = "According to this document, what is the population of Tokyo?"
+        actual_output = invoke_agent(pdf_agent, question)
+
+        test_case = LLMTestCase(
+            input=question,
+            actual_output=actual_output,
+        )
+        assert_test(test_case, [appropriate_uncertainty_metric])
