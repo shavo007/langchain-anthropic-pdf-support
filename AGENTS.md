@@ -153,9 +153,29 @@ Located in `evals/` directory:
 - Evaluates real agent responses using DeepEval metrics (AnswerRelevancy, Faithfulness, Helpfulness)
 - Slower but provides real-world validation
 - Uses module-scoped fixtures to reduce API calls
-- Three test classes: `TestPDFAgentIntegrationRelevancy`, `TestPDFAgentIntegrationFaithfulness`, `TestPDFAgentIntegrationHelpfulness`, `TestPDFAgentIntegrationCombined`
+- Four test classes:
+  - `TestPDFAgentIntegrationRelevancy` - Tests answer relevancy to questions
+  - `TestPDFAgentIntegrationFaithfulness` - Tests factual accuracy against PDF content
+  - `TestPDFAgentIntegrationHelpfulness` - Tests response helpfulness
+  - `TestPDFAgentIntegrationCombined` - Tests all metrics together
+  - `TestPDFAgentNegativeCases` - Tests appropriate handling of edge cases and uncertainty
 
 Both evaluation files use `claude-3-5-haiku-20241022` as the default judge model for metrics (override with `EVAL_MODEL=sonnet`). Rate limiting is handled via retry configuration with exponential backoff in `evals/conftest.py`. Run with `uv run poe eval` or `uv run poe eval-verbose`.
+
+#### Negative Test Cases
+The `TestPDFAgentNegativeCases` class evaluates how the agent handles edge cases and uncertainty:
+
+1. **Missing Content Test** (`test_question_about_missing_content`): Asks about content NOT in the PDF (e.g., "What is the recipe for chocolate cake?"). Agent should acknowledge the information is not present rather than fabricating an answer.
+
+2. **No PDF Loaded Test** (`test_question_without_pdf_loaded`): Asks questions without loading any PDF first. Agent should recognize no document is loaded and suggest loading one.
+
+3. **Unrelated Topic Test** (`test_question_about_different_topic`): Asks about topics unrelated to the PDF content (e.g., "What is the population of Tokyo?" when the PDF is about Claude models). Agent should not hallucinate or fabricate information.
+
+All negative tests use a custom `AppropriateUncertainty` GEval metric that evaluates:
+- Clear acknowledgment when information is not available
+- Avoiding hallucination or fabrication of details
+- Suggesting helpful alternatives (like loading a PDF or checking the document)
+- Threshold: 0.7 (70% confidence that the agent appropriately handled uncertainty)
 
 ## Key Architecture Decisions
 
@@ -262,3 +282,15 @@ The project uses pre-commit hooks that run on every commit:
 - Includes: ruff (lint + format), mypy, trailing whitespace, YAML checks, secret detection
 - Hooks will auto-fix issues when possible and block commits if checks fail
 - Manually run all hooks: `uv run poe pre-commit-run`
+
+### Evaluation Testing Patterns
+When adding new evaluation tests, consider both positive and negative cases:
+- **Positive tests**: Verify the agent produces correct, helpful responses for valid inputs
+- **Negative tests**: Verify the agent appropriately handles uncertainty, missing information, and edge cases
+
+For negative tests, use custom GEval metrics that focus on:
+- Appropriate acknowledgment of limitations (rather than testing factual accuracy)
+- Avoidance of hallucination when information is unavailable
+- Helpful guidance (suggesting alternatives like loading a PDF or clarifying the question)
+
+See `TestPDFAgentNegativeCases` in `evals/test_pdf_agent_integration.py` for reference implementation.
