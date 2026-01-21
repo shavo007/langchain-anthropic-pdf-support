@@ -206,6 +206,52 @@ The package supports two modes:
 
 Use agent mode for complex multi-document workflows; use direct mode for simple one-off analyses.
 
+## Claude Code Skills
+
+This project includes Claude Code skills in the `.claude/skills/` directory for development workflow automation.
+
+### Git Worktree Skill
+
+**Location**: `.claude/skills/git-worktree/`
+
+Manages git worktrees for parallel development workflows, allowing work on multiple branches simultaneously without stashing.
+
+**Key Features**:
+- **Create worktrees**: Automatically creates sibling directories (e.g., `../repo-name-feat/my-feature`) with new or existing branches
+- **Dependency installation**: Auto-detects and installs dependencies for npm, yarn, pnpm, bun, uv, poetry, pip, bundler, go mod, and cargo
+- **Editor integration**: Opens worktrees in VS Code, Cursor, IntelliJ, Zed, and other editors
+- **Worktree management**: List, remove, and prune worktree references
+
+**Common Commands** (via `python .claude/skills/git-worktree/scripts/worktree.py`):
+```bash
+# Create worktree with auto-install dependencies and open in VS Code
+create feat/my-feature -i -e code
+
+# Create from specific base branch
+create fix/bug -b develop
+
+# List all worktrees
+list
+
+# Remove worktree
+remove ../repo-name-feat/my-feature
+
+# Clean up stale references
+prune
+```
+
+**Use Cases**:
+- **Feature development**: Create isolated environment for new features without stashing current work
+- **Hotfixes**: Work on urgent fixes while keeping feature branch state intact
+- **Code review**: Check out PR branches for review without disrupting active development
+- **Parallel testing**: Run tests on multiple branches simultaneously
+
+**Implementation Details**:
+- The script auto-detects the main branch (main/master) for branching
+- Worktrees are created as sibling directories by default (can override with `-p`)
+- Dependency detection uses lockfiles (package-lock.json, uv.lock, etc.)
+- Editor commands are launched in background (non-blocking)
+
 ## Dependencies
 
 ### Runtime
