@@ -9,6 +9,8 @@ dependencies = [
     "langchain-anthropic>=1.3.0",
     "httpx>=0.28.0",
     "python-dotenv>=1.2.1",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
 ]
 
 [tool.uv]
@@ -56,6 +58,8 @@ pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run --all-files"
 eval = "deepeval test run evals/"
 eval-verbose = "deepeval test run evals/ -v"
+serve = "uvicorn pdf_agent.server:app --reload --host 0.0.0.0 --port 8000"
+serve-prod = "uvicorn pdf_agent.server:app --host 0.0.0.0 --port 8000"
 
 [tool.ruff]
 line-length = 100
