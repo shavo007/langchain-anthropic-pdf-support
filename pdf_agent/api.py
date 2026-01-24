@@ -14,6 +14,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
 
 from .agent import create_pdf_agent
+from .logging_utils import log_agent_messages
 from .tools import get_pdf_cache, load_pdf_from_base64, load_pdf_from_url
 
 logger = logging.getLogger(__name__)
@@ -120,11 +121,19 @@ def create_api_app() -> FastAPI:
     async def chat(request: ChatRequest) -> ChatResponse:
         """Send a message to the PDF agent and get a response."""
         try:
+            logger.info(
+                "Received chat request: %s",
+                request.message[:100] + "..." if len(request.message) > 100 else request.message,
+            )
+
             agent = get_agent()
             result = agent.invoke({"messages": [HumanMessage(content=request.message)]})
 
-            # Extract the last AI message from the response
+            # Log the agent execution with pretty formatting
             messages = result.get("messages", [])
+            log_agent_messages(messages)
+
+            # Extract the last AI message from the response
             response_text = ""
             for msg in reversed(messages):
                 if isinstance(msg, AIMessage):

@@ -189,25 +189,117 @@ The server runs at `http://localhost:8000` with these endpoints:
 
 **Example API Usage:**
 
+**1. Health Check**
 ```bash
-# Check health
-curl http://localhost:8000/health
+curl -s http://localhost:8000/health | jq
+```
+Response:
+```json
+{
+  "status": "healthy",
+  "agent_initialized": false,
+  "pdf_count": 0
+}
+```
 
-# Load a PDF
-curl -X POST http://localhost:8000/pdfs \
+**2. Load a PDF from URL**
+```bash
+curl -s -X POST http://localhost:8000/pdfs \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/document.pdf"}'
+  -d '{"url": "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"}' | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Successfully loaded PDF from URL. Use this identifier for analysis: https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf",
+  "identifier": "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+}
+```
 
-# Chat with the agent about the PDF
-curl -X POST http://localhost:8000/chat \
+**3. List Loaded PDFs**
+```bash
+curl -s http://localhost:8000/pdfs | jq
+```
+Response:
+```json
+{
+  "pdfs": [
+    "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+  ],
+  "count": 1
+}
+```
+
+**4. Chat with the Agent (with PDF URL in message)**
+
+The agent can load and analyze a PDF directly from a URL in your message - no need to load it separately first:
+```bash
+curl -s -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "What is this document about?"}'
+  -d '{"message": "Load and summarize this PDF: https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"}' | jq
+```
+Response:
+```json
+{
+  "response": "This document is a Model Card Addendum for Anthropic's Claude 3.5 Sonnet and Claude 3.5 Haiku models. It describes their capabilities including a new computer use feature that allows Claude to interpret screenshots and perform GUI actions. The document covers performance benchmarks showing improvements in coding, reasoning, and agentic tasks, along with safety evaluations conducted in collaboration with AI safety institutes.",
+  "pdf_count": 1
+}
+```
 
-# List loaded PDFs
-curl http://localhost:8000/pdfs
+**5. Chat with a Previously Loaded PDF**
+```bash
+curl -s -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What benchmarks are mentioned in the document?"}' | jq
+```
+Response:
+```json
+{
+  "response": "The document mentions several benchmarks: SWE-bench Verified (49.0% pass rate for software engineering tasks), TAU-bench (69.2% in retail, 46.0% in airline domains for agentic tasks), and OSWorld (22% success rate for computer use tasks).",
+  "pdf_count": 1
+}
+```
 
-# Clear all PDFs
-curl -X DELETE http://localhost:8000/pdfs
+**5. Load PDF from Base64**
+```bash
+curl -s -X POST http://localhost:8000/pdfs \
+  -H "Content-Type: application/json" \
+  -d '{"base64_data": "JVBERi0xLjAK...", "identifier": "my-document"}' | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Successfully loaded PDF from base64 data. Use this identifier for analysis: my-document",
+  "identifier": "my-document"
+}
+```
+
+**6. Clear a Specific PDF**
+```bash
+curl -s -X DELETE "http://localhost:8000/pdfs/my-document" | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Cleared PDF 'my-document' from memory",
+  "identifier": "my-document"
+}
+```
+
+**7. Clear All PDFs**
+```bash
+curl -s -X DELETE http://localhost:8000/pdfs | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Cleared 1 PDF(s) from memory",
+  "identifier": null
+}
 ```
 
 Interactive API documentation is available at `http://localhost:8000/docs` (Swagger UI).
