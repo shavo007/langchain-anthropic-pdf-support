@@ -29,6 +29,8 @@ The `inject_pdf_content` middleware in `agent.py` automatically injects cached P
 | `pdf_agent/core.py` | Direct PDF analysis functions (non-agent), model initialization |
 | `pdf_agent/prompts.py` | System prompt for the agent |
 | `pdf_agent/logging_utils.py` | Pretty-printed logging utilities for agent execution |
+| `pdf_agent/api.py` | FastAPI application with REST endpoints for chat and PDF management |
+| `pdf_agent/server.py` | Server entry point for uvicorn with environment configuration |
 | `pdf_agent/__main__.py` | CLI entry point with argparse-based demo modes |
 | `pdf_agent/__init__.py` | Public API exports for the package |
 
@@ -38,6 +40,20 @@ The `inject_pdf_content` middleware in `agent.py` automatically injects cached P
 ```bash
 uv run poe dev
 ```
+
+### Run the FastAPI server
+```bash
+uv run poe serve       # Development mode with auto-reload
+uv run poe serve-prod  # Production mode
+```
+
+The server exposes REST endpoints at `http://localhost:8000`:
+- `GET /health` - Health check with agent status
+- `POST /chat` - Send messages to the PDF agent
+- `GET /pdfs` - List loaded PDFs
+- `POST /pdfs` - Load PDF from URL or base64
+- `DELETE /pdfs` - Clear all PDFs
+- `DELETE /pdfs/{identifier}` - Clear specific PDF
 
 ### Run with debug logging (shows Anthropic API request/response details)
 ```bash
@@ -130,6 +146,7 @@ Current middleware in `agent.py`:
 ### Unit Tests
 Located in `tests/` directory:
 - `tests/test_agent.py` - Agent creation and middleware tests
+- `tests/test_api.py` - FastAPI endpoint tests (health, chat, PDF management)
 - `tests/test_core.py` - Core model and direct analysis function tests
 - `tests/test_tools.py` - Tool function tests (load_pdf_from_url, etc.)
 - `tests/test_logging_utils.py` - Logging utility tests
@@ -206,6 +223,31 @@ The package supports two modes:
 
 Use agent mode for complex multi-document workflows; use direct mode for simple one-off analyses.
 
+### FastAPI Server
+The `api.py` module provides a REST API wrapper around the PDF agent:
+
+**Key Design Decisions:**
+- **Lazy Agent Initialization**: The agent is created on first `/chat` request, not at startup. This allows the server to start even without `ANTHROPIC_API_KEY` set (useful for testing PDF management endpoints).
+- **Singleton Pattern**: A single agent instance is shared across all requests via `get_agent()`.
+- **Shared PDF Cache**: Uses the same `_pdf_cache` from `tools.py`, so PDFs loaded via API are available to the agent.
+- **CORS Enabled**: Allows browser-based clients to access the API.
+
+**Endpoints:**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/health` | Health check with agent status and PDF count |
+| POST | `/chat` | Send message to agent, returns AI response |
+| GET | `/pdfs` | List all loaded PDF identifiers |
+| POST | `/pdfs` | Load PDF from URL or base64 data |
+| DELETE | `/pdfs` | Clear all PDFs from memory |
+| DELETE | `/pdfs/{identifier}` | Clear specific PDF by identifier |
+
+**Server Entry Point (`server.py`):**
+- Loads `.env` file via `python-dotenv`
+- Configures logging to stdout
+- Exports `app` for uvicorn
+- Environment variables: `PDF_AGENT_HOST` (default: 0.0.0.0), `PDF_AGENT_PORT` (default: 8000)
+
 ## Claude Code Skills
 
 This project includes Claude Code skills in the `.claude/skills/` directory for development workflow automation.
@@ -259,6 +301,8 @@ prune
 - `langchain-anthropic>=1.3.0` - Claude integration with PDF support
 - `httpx>=0.28.0` - HTTP client for PDF downloads (async-ready)
 - `python-dotenv>=1.2.1` - Environment variable loading
+- `fastapi>=0.115.0` - Modern web framework for REST API
+- `uvicorn[standard]>=0.34.0` - ASGI server for FastAPI
 
 ### Development
 - `deepeval>=3.7.8` - LLM evaluation framework (metrics: relevancy, faithfulness, GEval)

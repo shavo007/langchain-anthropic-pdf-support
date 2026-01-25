@@ -8,6 +8,7 @@ A LangChain agent specialized for PDF document analysis using Anthropic's Claude
 ## Features
 
 - **PDF Document Analysis Agent**: An intelligent agent that can load, analyze, and answer questions about PDF documents
+- **REST API Server**: FastAPI-based HTTP API for chat interactions and PDF management
 - **Multiple Input Methods**: Support for PDFs from URLs, local files, or base64-encoded data
 - **Multi-Document Support**: Load and compare multiple PDFs in a single session
 - **Visual Understanding**: Analyze text, images, charts, tables, and visual elements
@@ -163,6 +164,146 @@ response = agent.invoke({
 })
 ```
 
+### REST API Server
+
+Start the FastAPI server to interact with the PDF agent via HTTP:
+
+```bash
+# Development mode with auto-reload
+uv run poe serve
+
+# Production mode
+uv run poe serve-prod
+```
+
+The server runs at `http://localhost:8000` with these endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check with agent status |
+| POST | `/chat` | Send message to agent |
+| GET | `/pdfs` | List loaded PDFs |
+| POST | `/pdfs` | Load PDF from URL or base64 |
+| DELETE | `/pdfs` | Clear all PDFs |
+| DELETE | `/pdfs/{id}` | Clear specific PDF |
+
+**Example API Usage:**
+
+**1. Health Check**
+```bash
+curl -s http://localhost:8000/health | jq
+```
+Response:
+```json
+{
+  "status": "healthy",
+  "agent_initialized": false,
+  "pdf_count": 0
+}
+```
+
+**2. Load a PDF from URL**
+```bash
+curl -s -X POST http://localhost:8000/pdfs \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"}' | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Successfully loaded PDF from URL. Use this identifier for analysis: https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf",
+  "identifier": "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+}
+```
+
+**3. List Loaded PDFs**
+```bash
+curl -s http://localhost:8000/pdfs | jq
+```
+Response:
+```json
+{
+  "pdfs": [
+    "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+  ],
+  "count": 1
+}
+```
+
+**4. Chat with the Agent (with PDF URL in message)**
+
+The agent can load and analyze a PDF directly from a URL in your message - no need to load it separately first:
+```bash
+curl -s -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Load and summarize this PDF: https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"}' | jq
+```
+Response:
+```json
+{
+  "response": "This document is a Model Card Addendum for Anthropic's Claude 3.5 Sonnet and Claude 3.5 Haiku models. It describes their capabilities including a new computer use feature that allows Claude to interpret screenshots and perform GUI actions. The document covers performance benchmarks showing improvements in coding, reasoning, and agentic tasks, along with safety evaluations conducted in collaboration with AI safety institutes.",
+  "pdf_count": 1
+}
+```
+
+**5. Chat with a Previously Loaded PDF**
+```bash
+curl -s -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What benchmarks are mentioned in the document?"}' | jq
+```
+Response:
+```json
+{
+  "response": "The document mentions several benchmarks: SWE-bench Verified (49.0% pass rate for software engineering tasks), TAU-bench (69.2% in retail, 46.0% in airline domains for agentic tasks), and OSWorld (22% success rate for computer use tasks).",
+  "pdf_count": 1
+}
+```
+
+**5. Load PDF from Base64**
+```bash
+curl -s -X POST http://localhost:8000/pdfs \
+  -H "Content-Type: application/json" \
+  -d '{"base64_data": "JVBERi0xLjAK...", "identifier": "my-document"}' | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Successfully loaded PDF from base64 data. Use this identifier for analysis: my-document",
+  "identifier": "my-document"
+}
+```
+
+**6. Clear a Specific PDF**
+```bash
+curl -s -X DELETE "http://localhost:8000/pdfs/my-document" | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Cleared PDF 'my-document' from memory",
+  "identifier": "my-document"
+}
+```
+
+**7. Clear All PDFs**
+```bash
+curl -s -X DELETE http://localhost:8000/pdfs | jq
+```
+Response:
+```json
+{
+  "success": true,
+  "message": "Cleared 1 PDF(s) from memory",
+  "identifier": null
+}
+```
+
+Interactive API documentation is available at `http://localhost:8000/docs` (Swagger UI).
+
 ## Agent Tools
 
 The PDF Agent has access to these tools (defined with `@tool` decorators):
@@ -216,6 +357,8 @@ This project uses [poethepoet](https://github.com/nat-n/poethepoet) for task run
 |---------|-------------|
 | `uv run poe dev` | Run the PDF agent demo |
 | `uv run poe demo` | Run demo with W3C test PDF |
+| `uv run poe serve` | Run FastAPI server (dev mode with reload) |
+| `uv run poe serve-prod` | Run FastAPI server (production mode) |
 | `uv run poe test` | Run unit tests |
 | `uv run poe test-cov` | Run tests with coverage report |
 | `uv run poe lint` | Check code with ruff |
@@ -331,13 +474,16 @@ langchain-anthropic-pdf-support/
 │   ├── __init__.py         # Public API exports
 │   ├── __main__.py         # CLI entry point
 │   ├── agent.py            # Agent creation
+│   ├── api.py              # FastAPI REST API endpoints
 │   ├── core.py             # Model initialization and direct analysis
 │   ├── logging_utils.py    # Pretty logging with emojis
 │   ├── prompts.py          # System prompts
+│   ├── server.py           # Server entry point for uvicorn
 │   └── tools.py            # Agent tools (@tool decorated functions)
 ├── tests/                  # Unit tests
 │   ├── conftest.py         # Shared fixtures
 │   ├── test_agent.py       # Agent tests
+│   ├── test_api.py         # FastAPI endpoint tests
 │   ├── test_core.py        # Core module tests
 │   ├── test_logging_utils.py # Logging tests
 │   └── test_tools.py       # Tools tests
@@ -357,6 +503,8 @@ langchain-anthropic-pdf-support/
 - `langchain-anthropic>=1.3.0` - Anthropic integration for LangChain
 - `httpx>=0.28.0` - HTTP client for downloading PDFs
 - `python-dotenv>=1.2.1` - Environment variable management
+- `fastapi>=0.115.0` - Modern web framework for REST API
+- `uvicorn[standard]>=0.34.0` - ASGI server for FastAPI
 
 ### Development
 - `ruff>=0.14.10` - Fast Python linter and formatter

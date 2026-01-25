@@ -17,6 +17,7 @@ Example usage:
 """
 
 from .agent import create_pdf_agent
+from .api import api_app
 from .core import (
     DEFAULT_MODEL,
     SONNET_MODEL,
@@ -48,6 +49,8 @@ __all__ = [
     # Agent
     "create_pdf_agent",
     "PDF_AGENT_SYSTEM_PROMPT",
+    # API
+    "api_app",
     # Model constants
     "DEFAULT_MODEL",
     "SONNET_MODEL",
