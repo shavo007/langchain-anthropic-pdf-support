@@ -1,0 +1,36 @@
+# Virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Tests and evals (not needed in production)
+tests/
+evals/
+
+# Documentation
+docs/
+CLAUDE.md
+AGENTS.md
+
+# Development files
+.env
+.env.*
+.pre-commit-config.yaml
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Claude Code
+.claude/
