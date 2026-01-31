@@ -309,7 +309,7 @@ prune
 - `pytest>=9.0.2` - Testing framework
 - `pytest-cov>=7.0.0` - Coverage reporting (target: 80%)
 - `pytest-mock>=3.15.1` - Mocking utilities for unit tests
-- `mypy>=1.19.1` - Static type checker (strict mode enabled)
+- `ty>=0.0.14` - Fast Rust-based type checker from Astral (~120x faster than MyPy)
 - `ruff>=0.14.10` - Fast linter and formatter (replaces black, flake8, isort)
 - `bandit>=1.8.0` - Security vulnerability scanner
 - `poethepoet>=0.39.0` - Task runner (poe tasks)
@@ -333,11 +333,11 @@ The `inject_pdf_content` middleware automatically prepends cached PDFs to the me
 This happens BEFORE every LLM call if the cache is non-empty. The agent doesn't need to explicitly "analyze" - it just answers questions directly.
 
 ### Type Annotations
-The codebase uses strict mypy configuration:
-- `disallow_untyped_defs = true`
-- `disallow_incomplete_defs = true`
+The codebase uses Ty (Astral's Rust-based type checker) with Python 3.14:
 - All functions must have full type annotations including return types
 - Use `TYPE_CHECKING` imports to avoid circular dependencies (see `agent.py`)
+- Some third-party library type issues are configured as warnings (not errors) in `[tool.ty.rules]`
+- Forward references no longer need quotes in Python 3.14 (PEP 649)
 
 ### Tool Decorator Usage
 Tools use `@tool(parse_docstring=True)` which:
@@ -369,7 +369,7 @@ The `logging_utils.py` module provides structured, emoji-rich logging:
 ### Pre-commit Hooks
 The project uses pre-commit hooks that run on every commit:
 - Install once with: `uv run poe pre-commit-install`
-- Includes: ruff (lint + format), mypy, trailing whitespace, YAML checks, secret detection
+- Includes: ruff (lint + format), ty (type checking), trailing whitespace, YAML checks, secret detection
 - Hooks will auto-fix issues when possible and block commits if checks fail
 - Manually run all hooks: `uv run poe pre-commit-run`
 

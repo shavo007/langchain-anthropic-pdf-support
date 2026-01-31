@@ -116,7 +116,7 @@ def inject_pdf_content(
     return handler(request)
 
 
-def create_pdf_agent(model_name: str | None = None) -> "CompiledStateGraph[Any, Any]":
+def create_pdf_agent(model_name: str | None = None) -> CompiledStateGraph[Any, Any]:
     """Create a LangChain agent specialized for PDF document analysis.
 
     Args:
