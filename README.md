@@ -13,7 +13,7 @@ A LangChain agent specialized for PDF document analysis using Anthropic's Claude
 - **Multi-Document Support**: Load and compare multiple PDFs in a single session
 - **Visual Understanding**: Analyze text, images, charts, tables, and visual elements
 - **Agent Execution Logging**: Detailed logging of tool calls and AI messages
-- **Type Safety**: Full type hints with mypy strict mode validation
+- **Type Safety**: Full type hints with Ty type checker validation
 - **Modern Tooling**: Ruff for linting/formatting, poethepoet for task running
 
 ## Agent Capabilities
@@ -29,7 +29,7 @@ The PDF Agent can:
 
 ## Requirements
 
-- Python 3.11+
+- Python 3.14+
 - [uv](https://docs.astral.sh/uv/) package manager
 - Anthropic API key
 
@@ -340,7 +340,7 @@ uv run poe pre-commit-install
 - **check-added-large-files** - Prevent files > 1MB
 - **check-merge-conflict** - Detect merge conflict markers
 - **detect-private-key** - Prevent committing secrets
-- **mypy** - Type check Python code
+- **ty** - Type check Python code
 
 **Manual run:**
 
@@ -364,7 +364,7 @@ This project uses [poethepoet](https://github.com/nat-n/poethepoet) for task run
 | `uv run poe lint` | Check code with ruff |
 | `uv run poe format` | Format code with ruff |
 | `uv run poe fix` | Auto-fix linting issues |
-| `uv run poe typecheck` | Run mypy type checking |
+| `uv run poe typecheck` | Run ty type checking |
 | `uv run poe check` | Run lint + format + typecheck |
 | `uv run poe ci` | Run lint + typecheck + test |
 | `uv run poe pre-commit-install` | Install pre-commit hooks |
@@ -394,7 +394,7 @@ uv run poe test-cov
 
 ### Type Checking
 
-The project uses strict mypy configuration:
+The project uses Ty (Astral's fast Rust-based type checker):
 
 ```bash
 uv run poe typecheck
@@ -508,7 +508,7 @@ langchain-anthropic-pdf-support/
 
 ### Development
 - `ruff>=0.14.10` - Fast Python linter and formatter
-- `mypy>=1.19.1` - Static type checker
+- `ty>=0.0.14` - Fast Rust-based type checker
 - `pytest>=9.0.2` - Testing framework
 - `pytest-cov>=7.0.0` - Coverage reporting
 - `pytest-mock>=3.15.1` - Mocking utilities

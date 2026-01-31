@@ -3,7 +3,7 @@ name = "langchain-anthropic-pdf-support"
 version = "0.1.0"
 description = "A simple LangChain agent with Anthropic Claude and PDF support"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = [
     "langchain>=1.2.0",
     "langchain-anthropic>=1.3.0",
@@ -24,7 +24,7 @@ build-backend = "hatchling.build"
 dev = [
     "bandit>=1.8.0",
     "deepeval>=3.7.8",
-    "mypy>=1.19.1",
+    "ty>=0.0.14",
     "poethepoet>=0.39.0",
     "pre-commit>=4.5.1",
     "pytest>=9.0.2",
@@ -48,7 +48,7 @@ test-cov = "pytest tests/ -v --cov=pdf_agent --cov-report=term-missing"
 lint = "ruff check ."
 format = "ruff format ."
 fix = "ruff check --fix ."
-typecheck = "mypy pdf_agent"
+typecheck = "ty check pdf_agent"
 security = "bandit -r pdf_agent/"
 check = ["lint", "format", "typecheck"]
 ci = ["lint", "typecheck", "test"]
@@ -63,21 +63,21 @@ serve-prod = "uvicorn pdf_agent.server:app --host 0.0.0.0 --port 8000"
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "B", "SIM"]
 ignore = ["E501"]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_ignores = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-strict_optional = true
-ignore_missing_imports = true
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.ty.rules]
+# Suppress false positives from third-party libraries
+invalid-argument-type = "warn"  # Starlette middleware typing issue
+missing-typed-dict-key = "warn"  # LangChain tool invoke typing
+invalid-key = "warn"  # LangChain tool invoke typing
+no-matching-overload = "warn"  # dict() constructor with model.profile
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
