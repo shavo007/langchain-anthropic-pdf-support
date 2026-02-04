@@ -19,8 +19,46 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: Determine update type
+        id: update-type
+        env:
+          METADATA_UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [ -n "$METADATA_UPDATE_TYPE" ] && [ "$METADATA_UPDATE_TYPE" != "null" ]; then
+            echo "update-type=$METADATA_UPDATE_TYPE" >> "$GITHUB_OUTPUT"
+            echo "Using metadata update-type: $METADATA_UPDATE_TYPE"
+            exit 0
+          fi
+
+          echo "Metadata update-type is null, parsing PR title..."
+
+          if echo "$PR_TITLE" | grep -qP 'from \d+\.\d+\.\d+ to \d+\.\d+\.\d+'; then
+            OLD_VERSION=$(echo "$PR_TITLE" | grep -oP 'from \K\d+\.\d+\.\d+')
+            NEW_VERSION=$(echo "$PR_TITLE" | grep -oP 'to \K\d+\.\d+\.\d+')
+
+            OLD_MAJOR=$(echo "$OLD_VERSION" | cut -d. -f1)
+            OLD_MINOR=$(echo "$OLD_VERSION" | cut -d. -f2)
+            NEW_MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
+            NEW_MINOR=$(echo "$NEW_VERSION" | cut -d. -f2)
+
+            if [ "$OLD_MAJOR" != "$NEW_MAJOR" ]; then
+              echo "update-type=version-update:semver-major" >> "$GITHUB_OUTPUT"
+              echo "Detected major update: $OLD_VERSION -> $NEW_VERSION"
+            elif [ "$OLD_MINOR" != "$NEW_MINOR" ]; then
+              echo "update-type=version-update:semver-minor" >> "$GITHUB_OUTPUT"
+              echo "Detected minor update: $OLD_VERSION -> $NEW_VERSION"
+            else
+              echo "update-type=version-update:semver-patch" >> "$GITHUB_OUTPUT"
+              echo "Detected patch update: $OLD_VERSION -> $NEW_VERSION"
+            fi
+          else
+            echo "Could not parse versions from title: $PR_TITLE"
+            echo "update-type=unknown" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Enable auto-merge for patch and minor updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        if: steps.update-type.outputs.update-type == 'version-update:semver-patch' || steps.update-type.outputs.update-type == 'version-update:semver-minor'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
