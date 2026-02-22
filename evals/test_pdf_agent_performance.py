@@ -198,7 +198,7 @@ class ResponseLengthMetric(BaseMetric):
 # Pricing for Claude models (per token, in USD)
 # https://www.anthropic.com/pricing
 CLAUDE_PRICING = {
-    "claude-3-5-haiku-20241022": {
+    "claude-haiku-4-5-20251001": {
         "input": 0.80 / 1_000_000,  # $0.80 per 1M input tokens
         "output": 4.00 / 1_000_000,  # $4.00 per 1M output tokens
     },
@@ -212,7 +212,7 @@ CLAUDE_PRICING = {
 def estimate_token_cost(
     input_tokens: int,
     output_tokens: int,
-    model: str = "claude-3-5-haiku-20241022",
+    model: str = "claude-haiku-4-5-20251001",
 ) -> float:
     """Estimate the cost of an LLM call based on token usage.
 
@@ -224,7 +224,7 @@ def estimate_token_cost(
     Returns:
         Estimated cost in USD.
     """
-    pricing = CLAUDE_PRICING.get(model, CLAUDE_PRICING["claude-3-5-haiku-20241022"])
+    pricing = CLAUDE_PRICING.get(model, CLAUDE_PRICING["claude-haiku-4-5-20251001"])
     return (input_tokens * pricing["input"]) + (output_tokens * pricing["output"])
 
 
