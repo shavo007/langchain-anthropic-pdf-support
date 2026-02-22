@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 40px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 40px;
+      font-size: 28px;
+    }
+    .container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .family {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 24px;
+      min-width: 280px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .family h2 {
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 2px solid;
+      font-size: 20px;
+    }
+    .opus h2 { color: #e94560; border-color: #e94560; }
+    .sonnet h2 { color: #0f9b8e; border-color: #0f9b8e; }
+    .haiku h2 { color: #f9a825; border-color: #f9a825; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      font-size: 14px;
+    }
+    th {
+      color: #888;
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    tr:not(:last-child) td {
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .cadence {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #2a2a4a;
+      font-size: 12px;
+      color: #888;
+    }
+    .summary {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background: #16213e;
+      border-radius: 12px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Anthropic Claude Release Timeline</h1>
+  <div class="container">
+    <div class="family opus">
+      <h2>Claude Opus</h2>
+      <table>
+        <tr><th>Model</th><th>Release</th></tr>
+        <tr><td>Claude 3 Opus</td><td>2024-02-29</td></tr>
+        <tr><td>Claude Opus 4</td><td>2025-05-22</td></tr>
+        <tr><td>Claude Opus 4.1</td><td>2025-08-05</td></tr>
+        <tr><td>Claude Opus 4.5</td><td>2025-11-01</td></tr>
+      </table>
+      <div class="cadence">Cadence: ~2-3 months (4.x releases)</div>
+    </div>
+    <div class="family sonnet">
+      <h2>Claude Sonnet</h2>
+      <table>
+        <tr><th>Model</th><th>Release</th></tr>
+        <tr><td>Claude 3.5 Sonnet v1</td><td>2024-06-20</td></tr>
+        <tr><td>Claude 3.5 Sonnet v2</td><td>2024-10-22</td></tr>
+        <tr><td>Claude 3.7 Sonnet</td><td>2025-02-19</td></tr>
+        <tr><td>Claude Sonnet 4</td><td>2025-05-14</td></tr>
+        <tr><td>Claude Sonnet 4.5</td><td>2025-09-29</td></tr>
+      </table>
+      <div class="cadence">Cadence: ~3-4 months</div>
+    </div>
+    <div class="family haiku">
+      <h2>Claude Haiku</h2>
+      <table>
+        <tr><th>Model</th><th>Release</th></tr>
+        <tr><td>Claude 3 Haiku</td><td>2024-03-13</td></tr>
+        <tr><td>Claude 3.5 Haiku</td><td>2024-10-22</td></tr>
+        <tr><td>Claude Haiku 4.5</td><td>2025-10-15</td></tr>
+      </table>
+      <div class="cadence">Cadence: ~7-12 months</div>
+    </div>
+  </div>
+  <div class="summary">
+    <strong>Summary:</strong> Sonnet is the most actively updated tier, Opus has accelerated in 2025, and Haiku receives the fewest updates (roughly annual).
+  </div>
+</body>
+</html>
