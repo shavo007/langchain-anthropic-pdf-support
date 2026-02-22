@@ -17,7 +17,7 @@ from pdf_agent.logging_utils import log_model_capabilities
 
 # Default model - using Haiku for cost-effective demos
 # Can be overridden via PDF_AGENT_MODEL environment variable
-DEFAULT_MODEL = "claude-3-5-haiku-20241022"
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
 # Higher-capability model for production use
 SONNET_MODEL = "claude-sonnet-4-5-20250929"
