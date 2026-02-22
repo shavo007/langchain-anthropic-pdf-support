@@ -24,7 +24,25 @@ jobs:
         env:
           METADATA_UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          classify_semver() {
+            local old="$1" new="$2"
+            local old_major old_minor new_major new_minor
+            old_major=$(echo "$old" | cut -d. -f1)
+            old_minor=$(echo "$old" | cut -d. -f2)
+            new_major=$(echo "$new" | cut -d. -f1)
+            new_minor=$(echo "$new" | cut -d. -f2)
+            if [ "$old_major" != "$new_major" ]; then
+              echo "major"
+            elif [ "$old_minor" != "$new_minor" ]; then
+              echo "minor"
+            else
+              echo "patch"
+            fi
+          }
+
           if [ -n "$METADATA_UPDATE_TYPE" ] && [ "$METADATA_UPDATE_TYPE" != "null" ]; then
             echo "update-type=$METADATA_UPDATE_TYPE" >> "$GITHUB_OUTPUT"
             echo "Using metadata update-type: $METADATA_UPDATE_TYPE"
@@ -33,25 +51,35 @@ jobs:
 
           echo "Metadata update-type is null, parsing PR title..."
 
+          # Single-package group: title contains "from X.Y.Z to X.Y.Z"
           if echo "$PR_TITLE" | grep -qP 'from \d+\.\d+\.\d+ to \d+\.\d+\.\d+'; then
             OLD_VERSION=$(echo "$PR_TITLE" | grep -oP 'from \K\d+\.\d+\.\d+')
             NEW_VERSION=$(echo "$PR_TITLE" | grep -oP 'to \K\d+\.\d+\.\d+')
+            LEVEL=$(classify_semver "$OLD_VERSION" "$NEW_VERSION")
+            echo "update-type=version-update:semver-$LEVEL" >> "$GITHUB_OUTPUT"
+            echo "Detected $LEVEL update: $OLD_VERSION -> $NEW_VERSION"
 
-            OLD_MAJOR=$(echo "$OLD_VERSION" | cut -d. -f1)
-            OLD_MINOR=$(echo "$OLD_VERSION" | cut -d. -f2)
-            NEW_MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
-            NEW_MINOR=$(echo "$NEW_VERSION" | cut -d. -f2)
+          # Multi-package group: title contains "with N updates" — parse commit body
+          elif echo "$PR_TITLE" | grep -qP 'with \d+ updates?$'; then
+            echo "Multi-package group update, fetching commit body..."
+            COMMIT_BODY=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" --jq '.commit.message')
+            HIGHEST="patch"
+            while IFS= read -r line; do
+              if echo "$line" | grep -qP 'from \d+\.\d+\.\d+ to \d+\.\d+\.\d+'; then
+                OLD=$(echo "$line" | grep -oP 'from \K\d+\.\d+\.\d+')
+                NEW=$(echo "$line" | grep -oP 'to \K\d+\.\d+\.\d+')
+                LEVEL=$(classify_semver "$OLD" "$NEW")
+                echo "  $OLD -> $NEW ($LEVEL)"
+                if [ "$LEVEL" = "major" ]; then
+                  HIGHEST="major"
+                elif [ "$LEVEL" = "minor" ] && [ "$HIGHEST" != "major" ]; then
+                  HIGHEST="minor"
+                fi
+              fi
+            done <<< "$COMMIT_BODY"
+            echo "update-type=version-update:semver-$HIGHEST" >> "$GITHUB_OUTPUT"
+            echo "Detected highest update type across packages: $HIGHEST"
 
-            if [ "$OLD_MAJOR" != "$NEW_MAJOR" ]; then
-              echo "update-type=version-update:semver-major" >> "$GITHUB_OUTPUT"
-              echo "Detected major update: $OLD_VERSION -> $NEW_VERSION"
-            elif [ "$OLD_MINOR" != "$NEW_MINOR" ]; then
-              echo "update-type=version-update:semver-minor" >> "$GITHUB_OUTPUT"
-              echo "Detected minor update: $OLD_VERSION -> $NEW_VERSION"
-            else
-              echo "update-type=version-update:semver-patch" >> "$GITHUB_OUTPUT"
-              echo "Detected patch update: $OLD_VERSION -> $NEW_VERSION"
-            fi
           else
             echo "Could not parse versions from title: $PR_TITLE"
             echo "update-type=unknown" >> "$GITHUB_OUTPUT"
