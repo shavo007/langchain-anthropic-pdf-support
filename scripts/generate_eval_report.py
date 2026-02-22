@@ -98,7 +98,7 @@ def load_result_files(results_dir: Path) -> list[dict]:
             if "testCases" in data:
                 data["_source_file"] = path.name
                 runs.append(data)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except json.JSONDecodeError, UnicodeDecodeError:
             pass
     return runs
 
