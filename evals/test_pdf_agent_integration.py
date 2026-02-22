@@ -271,6 +271,7 @@ class TestPDFAgentIntegrationHelpfulness:
         test_case = LLMTestCase(
             input="List the 3 most important capabilities or features mentioned.",
             actual_output=actual_output,
+            retrieval_context=PDF_CONTEXT,
         )
         assert_test(test_case, [helpfulness_metric])
 
@@ -289,6 +290,7 @@ class TestPDFAgentIntegrationHelpfulness:
         test_case = LLMTestCase(
             input="How does Claude 3.5 Haiku compare to Claude 3.5 Sonnet?",
             actual_output=actual_output,
+            retrieval_context=PDF_CONTEXT,
         )
         assert_test(test_case, [helpfulness_metric])
 
