@@ -197,7 +197,7 @@ All negative tests use a custom `AppropriateUncertainty` GEval metric that evalu
 ## Key Architecture Decisions
 
 ### Default Model
-The agent uses `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5) as the default model, defined in `core.py:get_model()`. This model provides:
+The agent uses `claude-sonnet-4-6` (Claude Sonnet 4.6) as the higher-capability model, defined in `core.py:get_model()`. This model provides:
 - Native PDF support with multimodal capabilities
 - Strong performance on document analysis tasks
 - Support for prompt caching (via `cache_control` in middleware)

@@ -20,7 +20,7 @@ from pdf_agent.logging_utils import log_model_capabilities
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
 # Higher-capability model for production use
-SONNET_MODEL = "claude-sonnet-4-5-20250929"
+SONNET_MODEL = "claude-sonnet-4-6"
 
 
 def get_model(model_name: str | None = None) -> ChatAnthropic:
