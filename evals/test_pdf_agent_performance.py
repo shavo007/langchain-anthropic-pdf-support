@@ -202,7 +202,7 @@ CLAUDE_PRICING = {
         "input": 0.80 / 1_000_000,  # $0.80 per 1M input tokens
         "output": 4.00 / 1_000_000,  # $4.00 per 1M output tokens
     },
-    "claude-sonnet-4-5-20250929": {
+    "claude-sonnet-4-6": {
         "input": 3.00 / 1_000_000,  # $3.00 per 1M input tokens
         "output": 15.00 / 1_000_000,  # $15.00 per 1M output tokens
     },
