@@ -6,6 +6,8 @@ rate limits (50,000 input tokens per minute) more gracefully.
 
 import os
 
+from pdf_agent import DEFAULT_MODEL, SONNET_MODEL
+
 
 def pytest_configure(config):
     """Configure DeepEval retry settings before tests run.
@@ -29,3 +31,22 @@ def pytest_configure(config):
     for key, default_value in retry_defaults.items():
         if key not in os.environ:
             os.environ[key] = default_value
+
+    env_model = os.environ.get("EVAL_MODEL", "").lower()
+    if env_model == "sonnet":
+        eval_model = SONNET_MODEL
+    elif env_model:
+        eval_model = env_model
+    else:
+        eval_model = DEFAULT_MODEL
+
+    env_agent_model = os.environ.get("PDF_AGENT_MODEL", "").lower()
+    if env_agent_model == "sonnet":
+        agent_model = SONNET_MODEL
+    elif env_agent_model:
+        agent_model = env_agent_model
+    else:
+        agent_model = DEFAULT_MODEL
+
+    print(f"\n🔍 Eval judge model : {eval_model}")
+    print(f"🤖 PDF agent model  : {agent_model}\n")
