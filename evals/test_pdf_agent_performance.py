@@ -394,7 +394,7 @@ class TestPDFAgentResponseLength:
         """Test that detailed queries produce appropriately sized responses."""
         question = (
             f"Load this PDF: {TEST_PDF_URL} "
-            "List all the benchmark results mentioned in this document."
+            "What are the key benchmark results mentioned in this document?"
         )
 
         actual_output, _, _ = invoke_agent_with_metrics(pdf_agent, question)
