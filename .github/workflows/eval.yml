@@ -36,9 +36,17 @@ jobs:
           fi
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPEVAL_RESULTS_FOLDER: ./deepeval-results
           # Rate limit retry configuration for Anthropic API (50k tokens/min limit)
           DEEPEVAL_RETRY_MAX_ATTEMPTS: "5"
           DEEPEVAL_RETRY_INITIAL_SECONDS: "10.0"
           DEEPEVAL_RETRY_EXP_BASE: "2.0"
           DEEPEVAL_RETRY_JITTER: "1.0"
           DEEPEVAL_RETRY_CAP_SECONDS: "60.0"
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepeval-results
+          path: ./deepeval-results
