@@ -87,9 +87,8 @@ class TestPDFAgentAnswerRelevancy:
             input="What is the main topic of this research paper?",
             actual_output=(
                 "The main topic of this research paper is machine learning optimization "
-                "techniques. The paper explores various gradient descent algorithms and "
-                "their convergence properties, with a focus on adaptive learning rate methods "
-                "such as Adam and RMSprop."
+                "techniques, specifically analyzing gradient descent algorithms and "
+                "their convergence properties."
             ),
             retrieval_context=[
                 "Abstract: This paper presents a comprehensive study of optimization "
