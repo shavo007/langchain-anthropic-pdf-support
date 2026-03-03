@@ -26,7 +26,7 @@ def get_eval_model_name() -> str:
     """Get the model name for evaluations.
 
     Uses EVAL_MODEL environment variable if set:
-    - "sonnet" -> uses Claude Sonnet 4.5 for higher-capability evaluations
+    - "sonnet" -> uses Claude Sonnet 4.6 for higher-capability evaluations
     - other values -> used as-is
     - not set -> uses default Haiku model (cost-effective)
     """

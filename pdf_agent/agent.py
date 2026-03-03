@@ -120,7 +120,7 @@ def create_pdf_agent(model_name: str | None = None) -> CompiledStateGraph[Any, A
     """Create a LangChain agent specialized for PDF document analysis.
 
     Args:
-        model_name: Optional model name to use. Defaults to Claude Sonnet 4.5.
+        model_name: Optional model name to use. Defaults to Claude Sonnet 4.6.
 
     Returns:
         Configured agent instance with PDF analysis tools.
