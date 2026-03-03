@@ -324,10 +324,11 @@ class TestPDFAgentIntegrationCombined:
             actual_output=actual_output,
             retrieval_context=PDF_CONTEXT,
         )
-        assert_test(
-            test_case,
-            [answer_relevancy_metric, faithfulness_metric, helpfulness_metric],
-        )
+        # Evaluate metrics individually to avoid Haiku JSON truncation
+        # when generating evaluation output for multiple metrics at once.
+        assert_test(test_case, [answer_relevancy_metric])
+        assert_test(test_case, [faithfulness_metric])
+        assert_test(test_case, [helpfulness_metric])
 
 
 class TestPDFAgentToolCorrectness:
