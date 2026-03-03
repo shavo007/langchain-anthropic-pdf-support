@@ -288,7 +288,7 @@ class TestPDFAgentIntegrationHelpfulness:
         actual_output = invoke_agent(pdf_agent, question)
 
         test_case = LLMTestCase(
-            input="How does Claude 3.5 Haiku compare to Claude 3.5 Sonnet?",
+            input="How does Claude 3.5 Haiku compare to Claude 3.5 Sonnet based on this document?",
             actual_output=actual_output,
             retrieval_context=PDF_CONTEXT,
         )
