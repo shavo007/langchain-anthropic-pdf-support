@@ -28,7 +28,7 @@ def get_model(model_name: str | None = None) -> ChatAnthropic:
 
     Args:
         model_name: The Claude model to use. If not provided, uses the
-            PDF_AGENT_MODEL environment variable, or defaults to Claude Sonnet 4.5.
+            PDF_AGENT_MODEL environment variable, or defaults to Claude Sonnet 4.6.
             Set PDF_AGENT_MODEL=haiku to use the cheaper Haiku model for demos.
 
     Returns:
