@@ -121,11 +121,13 @@ def helpfulness_metric(evaluation_model: AnthropicModel) -> GEval:
             "Evaluate if the response is helpful for understanding PDF content. "
             "Consider: Does it directly address the question? "
             "Is the information accurate and well-structured? "
-            "Does it provide specific details from the document?"
+            "Does it provide specific details from the document? "
+            "Are claims traceable to the provided retrieval context?"
         ),
         evaluation_params=[
             LLMTestCaseParams.INPUT,
             LLMTestCaseParams.ACTUAL_OUTPUT,
+            LLMTestCaseParams.RETRIEVAL_CONTEXT,
         ],
         model=evaluation_model,
         threshold=0.7,
