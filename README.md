@@ -107,8 +107,10 @@ response = agent.invoke({
 # Log all tool calls and messages
 log_agent_messages(response["messages"])
 
-# Get the final response
-print(response["messages"][-1].content)
+# Get the structured response
+structured = response["structured_response"]
+print(structured.answer)
+print(structured.key_findings)
 ```
 
 ### Direct PDF Analysis (without agent)
@@ -242,7 +244,12 @@ curl -s -X POST http://localhost:8000/chat \
 Response:
 ```json
 {
-  "response": "This document is a Model Card Addendum for Anthropic's Claude 3.5 Sonnet and Claude 3.5 Haiku models. It describes their capabilities including a new computer use feature that allows Claude to interpret screenshots and perform GUI actions. The document covers performance benchmarks showing improvements in coding, reasoning, and agentic tasks, along with safety evaluations conducted in collaboration with AI safety institutes.",
+  "answer": "This document is a Model Card Addendum for Anthropic's Claude 3.5 Sonnet and Claude 3.5 Haiku models, covering a new computer use capability, performance benchmarks, and safety evaluations conducted with AI safety institutes.",
+  "key_findings": [
+    "Introduces computer use capability: Claude can interpret screenshots and perform GUI actions",
+    "SWE-bench Verified: 49.0% pass rate (state-of-the-art for software engineering tasks)",
+    "Safety evaluations conducted with US and UK AI Safety Institutes and METR"
+  ],
   "pdf_count": 1
 }
 ```
@@ -256,7 +263,12 @@ curl -s -X POST http://localhost:8000/chat \
 Response:
 ```json
 {
-  "response": "The document mentions several benchmarks: SWE-bench Verified (49.0% pass rate for software engineering tasks), TAU-bench (69.2% in retail, 46.0% in airline domains for agentic tasks), and OSWorld (22% success rate for computer use tasks).",
+  "answer": "The document mentions SWE-bench Verified (49.0% pass rate), TAU-bench (69.2% retail, 46.0% airline), and OSWorld (22% success rate for computer use tasks).",
+  "key_findings": [
+    "SWE-bench Verified: Claude 3.5 Sonnet 49.0%, Haiku 40.6% — both state-of-the-art",
+    "TAU-bench: 69.2% retail domain, 46.0% airline domain for agentic customer service",
+    "OSWorld: 22% success rate with 50 steps vs 72.36% human performance"
+  ],
   "pdf_count": 1
 }
 ```
