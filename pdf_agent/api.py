@@ -10,10 +10,10 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 
-from .agent import create_pdf_agent
+from .agent import PDFAgentResponse, create_pdf_agent
 from .logging_utils import log_agent_messages
 from .tools import get_pdf_cache, load_pdf_from_base64, load_pdf_from_url
 
@@ -43,8 +43,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     """Response model for chat endpoint."""
 
-    response: str = Field(..., description="Agent's response message")
-    pdf_count: int = Field(..., description="Number of PDFs currently loaded")
+    answer: str = Field(description="Direct answer to the question")
+    key_findings: list[str] = Field(description="Key findings extracted from the PDF")
+    pdf_count: int = Field(description="Number of PDFs currently loaded")
 
 
 class PDFListResponse(BaseModel):
@@ -133,17 +134,11 @@ def create_api_app() -> FastAPI:
             messages = result.get("messages", [])
             log_agent_messages(messages)
 
-            # Extract the last AI message from the response
-            response_text = ""
-            for msg in reversed(messages):
-                if isinstance(msg, AIMessage):
-                    response_text = str(msg.content)
-                    break
-
-            pdf_cache = get_pdf_cache()
+            structured: PDFAgentResponse = result["structured_response"]
             return ChatResponse(
-                response=response_text,
-                pdf_count=len(pdf_cache),
+                answer=structured.answer,
+                key_findings=structured.key_findings,
+                pdf_count=len(get_pdf_cache()),
             )
         except Exception as e:
             logger.exception("Error processing chat request")

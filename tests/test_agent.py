@@ -2,7 +2,9 @@
 
 from unittest.mock import MagicMock, patch
 
-from pdf_agent.agent import create_pdf_agent
+from langchain.agents.structured_output import ProviderStrategy
+
+from pdf_agent.agent import PDFAgentResponse, create_pdf_agent
 from pdf_agent.prompts import PDF_AGENT_SYSTEM_PROMPT
 
 
@@ -82,6 +84,27 @@ class TestCreatePdfAgent:
             call_kwargs = mock_create_agent.call_args[1]
             assert "middleware" in call_kwargs
             assert len(call_kwargs["middleware"]) == 2
+
+    def test_create_pdf_agent_uses_provider_strategy(self, mock_env_api_key: None) -> None:
+        """Test that the agent is created with ProviderStrategy for structured output."""
+        with (
+            patch("pdf_agent.agent.get_model") as mock_get_model,
+            patch("pdf_agent.agent.create_agent") as mock_create_agent,
+        ):
+            mock_get_model.return_value = MagicMock()
+            mock_create_agent.return_value = MagicMock()
+
+            create_pdf_agent()
+
+            call_kwargs = mock_create_agent.call_args[1]
+            assert "response_format" in call_kwargs
+            assert isinstance(call_kwargs["response_format"], ProviderStrategy)
+
+    def test_pdf_agent_response_schema(self) -> None:
+        """Test that PDFAgentResponse has the expected fields."""
+        response = PDFAgentResponse(answer="Test answer", key_findings=["Finding 1"])
+        assert response.answer == "Test answer"
+        assert response.key_findings == ["Finding 1"]
 
 
 class TestSystemPrompt:

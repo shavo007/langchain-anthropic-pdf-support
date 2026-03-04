@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from pdf_agent.agent import PDFAgentResponse
 from pdf_agent.api import create_api_app, get_agent
 from pdf_agent.tools import get_pdf_cache
 
@@ -78,7 +79,11 @@ class TestChatEndpoint:
         with patch("pdf_agent.api.get_agent") as mock_get_agent:
             mock_agent = MagicMock()
             mock_agent.invoke.return_value = {
-                "messages": [AIMessage(content="Hello! How can I help you?")]
+                "messages": [AIMessage(content="Hello! How can I help you?")],
+                "structured_response": PDFAgentResponse(
+                    answer="Hello! How can I help you?",
+                    key_findings=["The user greeted the agent"],
+                ),
             }
             mock_get_agent.return_value = mock_agent
 
@@ -86,8 +91,10 @@ class TestChatEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert "response" in data
-        assert data["response"] == "Hello! How can I help you?"
+        assert "answer" in data
+        assert data["answer"] == "Hello! How can I help you?"
+        assert "key_findings" in data
+        assert isinstance(data["key_findings"], list)
         assert "pdf_count" in data
 
     def test_chat_empty_message(self, client: TestClient) -> None:
@@ -97,7 +104,10 @@ class TestChatEndpoint:
         with patch("pdf_agent.api.get_agent") as mock_get_agent:
             mock_agent = MagicMock()
             mock_agent.invoke.return_value = {
-                "messages": [AIMessage(content="I need more information.")]
+                "messages": [AIMessage(content="I need more information.")],
+                "structured_response": PDFAgentResponse(
+                    answer="I need more information.", key_findings=[]
+                ),
             }
             mock_get_agent.return_value = mock_agent
 

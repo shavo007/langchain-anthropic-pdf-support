@@ -196,6 +196,19 @@ All negative tests use a custom `AppropriateUncertainty` GEval metric that evalu
 
 ## Key Architecture Decisions
 
+### Structured Response Output
+
+The agent uses LangChain's `ProviderStrategy` (Claude-native structured output) to return a typed `PDFAgentResponse` Pydantic model instead of a plain string. This avoids the extra tool-calling round trip used by `ToolStrategy`.
+
+**Schema** (defined in `pdf_agent/agent.py`):
+```python
+class PDFAgentResponse(BaseModel):
+    answer: str          # Direct answer to the question
+    key_findings: list[str]  # Key findings from the PDF relevant to the question
+```
+
+The structured response is available at `result["structured_response"]` after invoking the agent. The `/chat` API endpoint extracts `answer` and `key_findings` directly from this typed object.
+
 ### Default Model
 The agent uses `claude-sonnet-4-6` (Claude Sonnet 4.6) as the higher-capability model, defined in `core.py:get_model()`. This model provides:
 - Native PDF support with multimodal capabilities

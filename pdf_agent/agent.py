@@ -15,7 +15,9 @@ from langchain.agents.middleware import (
     ModelResponse,
     wrap_model_call,
 )
+from langchain.agents.structured_output import ProviderStrategy
 from langchain_core.messages import AIMessage, HumanMessage
+from pydantic import BaseModel, Field
 
 from .core import get_model
 from .prompts import PDF_AGENT_SYSTEM_PROMPT
@@ -32,6 +34,15 @@ if TYPE_CHECKING:
     from langgraph.graph.state import CompiledStateGraph
 
 logger = logging.getLogger(__name__)
+
+
+class PDFAgentResponse(BaseModel):
+    """Structured response from the PDF analysis agent."""
+
+    answer: str = Field(description="Direct answer to the question")
+    key_findings: list[str] = Field(
+        description="Key findings from the PDF relevant to the question"
+    )
 
 
 @wrap_model_call
@@ -141,6 +152,7 @@ def create_pdf_agent(model_name: str | None = None) -> CompiledStateGraph[Any, A
         tools=tools,
         system_prompt=PDF_AGENT_SYSTEM_PROMPT,
         middleware=[log_request_metrics, inject_pdf_content],
+        response_format=ProviderStrategy(PDFAgentResponse),
     )
 
     return agent
