@@ -243,8 +243,7 @@ def invoke_agent_with_metrics(agent, question: str) -> tuple[str, float, float]:
     completion_time = time.perf_counter() - start_time
 
     # Get the final response
-    final_message = response["messages"][-1]
-    actual_output = final_message.content
+    actual_output = response["structured_response"].answer
 
     # Estimate token usage and cost
     # Note: This is a rough estimate. For production, use actual token counts

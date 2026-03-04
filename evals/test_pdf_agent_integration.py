@@ -144,9 +144,8 @@ def tool_correctness_metric(evaluation_model: AnthropicModel) -> ToolCorrectness
 def invoke_agent(agent, question: str) -> str:
     """Invoke the PDF agent and return the final response."""
     response = agent.invoke({"messages": [{"role": "user", "content": question}]})
-    # Get the last AI message content
-    final_message = response["messages"][-1]
-    return final_message.content
+    structured = response["structured_response"]
+    return structured.answer
 
 
 def invoke_agent_with_tools(agent, question: str) -> tuple[str, list[ToolCall]]:
@@ -168,9 +167,9 @@ def invoke_agent_with_tools(agent, question: str) -> tuple[str, list[ToolCall]]:
             for tc in msg.tool_calls:
                 tools_called.append(ToolCall(name=tc["name"]))
 
-    # Get final response
-    final_message = response["messages"][-1]
-    return final_message.content, tools_called
+    # Get final response from structured output
+    structured = response["structured_response"]
+    return structured.answer, tools_called
 
 
 class TestPDFAgentIntegrationRelevancy:
