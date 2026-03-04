@@ -64,8 +64,8 @@ def run_agent_demo(pdf_url: str) -> None:
 
     log_agent_messages(response["messages"])
 
-    final_message = response["messages"][-1].content
-    log_response(str(final_message))
+    structured = response["structured_response"]
+    log_response(structured.answer)
 
 
 def run_direct_demo(pdf_url: str) -> None:
