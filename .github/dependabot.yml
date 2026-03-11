@@ -13,6 +13,19 @@ updates:
       - "dependencies"
       - "python"
 
+  # pre-commit hooks
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "pre-commit"
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
