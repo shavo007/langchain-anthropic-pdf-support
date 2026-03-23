@@ -85,8 +85,11 @@ jobs:
             echo "update-type=unknown" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Enable auto-merge for patch and minor updates
-        if: steps.update-type.outputs.update-type == 'version-update:semver-patch' || steps.update-type.outputs.update-type == 'version-update:semver-minor'
+      - name: Enable auto-merge for all updates
+        if: |
+          steps.update-type.outputs.update-type == 'version-update:semver-patch' ||
+          steps.update-type.outputs.update-type == 'version-update:semver-minor' ||
+          steps.update-type.outputs.update-type == 'version-update:semver-major'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
