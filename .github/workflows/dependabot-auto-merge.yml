@@ -86,7 +86,18 @@ jobs:
           fi
 
       - name: Enable auto-merge for patch and minor updates
-        if: steps.update-type.outputs.update-type == 'version-update:semver-patch' || steps.update-type.outputs.update-type == 'version-update:semver-minor'
+        if: |
+          steps.update-type.outputs.update-type == 'version-update:semver-patch' ||
+          steps.update-type.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for major GitHub Actions updates
+        if: |
+          steps.update-type.outputs.update-type == 'version-update:semver-major' &&
+          steps.metadata.outputs.package-ecosystem == 'github-actions'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
