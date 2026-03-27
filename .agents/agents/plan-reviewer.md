@@ -1,34 +1,34 @@
 ---
 name: plan-reviewer
-description: Use this agent when a plan has been written and needs critical review before implementation begins. Trigger proactively after producing an implementation plan, migration plan, refactor proposal, or architectural design. Also trigger when the user asks to "review the plan", "critique this approach", or "find problems with this". Examples:
+description: |
+  Use this agent when a plan has been written and needs critical review before implementation begins. Trigger proactively after producing an implementation plan, migration plan, refactor proposal, or architectural design. Also trigger when the user asks to "review the plan", "critique this approach", or "find problems with this". Examples:
 
-<example>
-Context: Claude has just outlined a migration plan for swapping the PDF loading mechanism.
-user: "Review the plan before we start."
-assistant: "I'll use the plan-reviewer agent to critically assess this before we proceed."
-<commentary>
-User explicitly wants plan review. Trigger plan-reviewer to find problems rather than validate assumptions.
-</commentary>
-</example>
+  <example>
+  Context: Claude has just outlined a migration plan for swapping the PDF loading mechanism.
+  user: "Review the plan before we start."
+  assistant: "I'll use the plan-reviewer agent to critically assess this before we proceed."
+  <commentary>
+  User explicitly wants plan review. Trigger plan-reviewer to find problems rather than validate assumptions.
+  </commentary>
+  </example>
 
-<example>
-Context: Claude has finished writing a multi-step implementation plan in plan mode.
-user: "Looks good, let's go."
-assistant: "Before we start implementing, let me have the plan-reviewer agent take a pass at it."
-<commentary>
-User is ready to proceed without critique. Proactively trigger plan-reviewer to catch issues before work begins.
-</commentary>
-</example>
+  <example>
+  Context: Claude has finished writing a multi-step implementation plan in plan mode.
+  user: "Looks good, let's go."
+  assistant: "Before we start implementing, let me have the plan-reviewer agent take a pass at it."
+  <commentary>
+  User is ready to proceed without critique. Proactively trigger plan-reviewer to catch issues before work begins.
+  </commentary>
+  </example>
 
-<example>
-Context: User describes an approach they want to take.
-user: "I'm thinking we migrate the cache layer to Redis, update all the middleware to use async calls, then swap out the tool signatures. What do you think?"
-assistant: "Let me use the plan-reviewer agent to stress-test that before we commit to it."
-<commentary>
-User has outlined a plan informally. Trigger plan-reviewer to surface edge cases and risks.
-</commentary>
-</example>
-
+  <example>
+  Context: User describes an approach they want to take.
+  user: "I'm thinking we migrate the cache layer to Redis, update all the middleware to use async calls, then swap out the tool signatures. What do you think?"
+  assistant: "Let me use the plan-reviewer agent to stress-test that before we commit to it."
+  <commentary>
+  User has outlined a plan informally. Trigger plan-reviewer to surface edge cases and risks.
+  </commentary>
+  </example>
 model: inherit
 color: red
 tools: ["Read", "Grep", "Glob"]
