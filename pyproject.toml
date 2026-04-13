@@ -22,7 +22,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "bandit>=1.8.0",
+    "bandit>=1.9.4",
     "deepeval>=3.7.8",
     "ty>=0.0.14",
     "poethepoet>=0.39.0",
