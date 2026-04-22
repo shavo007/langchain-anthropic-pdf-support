@@ -32,7 +32,7 @@ class TestGetModel:
             mock_chat.return_value = MagicMock()
             get_model()
             call_kwargs = mock_chat.call_args[1]
-            assert "claude-haiku-4-5-20251001" in call_kwargs["model"]
+            assert "claude-haiku-4-5-20251001" in call_kwargs["model_name"]
 
     def test_get_model_accepts_custom_model_name(self, mock_env_api_key: None) -> None:
         """Test that get_model accepts a custom model name."""
@@ -40,7 +40,7 @@ class TestGetModel:
             mock_chat.return_value = MagicMock()
             get_model("custom-model")
             call_kwargs = mock_chat.call_args[1]
-            assert call_kwargs["model"] == "custom-model"
+            assert call_kwargs["model_name"] == "custom-model"
 
     def test_get_model_raises_without_api_key(self, clear_env_api_key: None) -> None:
         """Test that get_model raises ValueError without API key."""

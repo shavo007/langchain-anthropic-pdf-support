@@ -53,7 +53,7 @@ def get_model(model_name: str | None = None) -> ChatAnthropic:
         else:
             model_name = DEFAULT_MODEL
 
-    model = ChatAnthropic(model=model_name)  # type: ignore[call-arg]
+    model = ChatAnthropic(model_name=model_name)
     if model.profile:
         log_model_capabilities(model_name, dict(model.profile))
     return model
