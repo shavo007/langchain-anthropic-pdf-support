@@ -51,10 +51,10 @@ jobs:
 
           echo "Metadata update-type is null, parsing PR title..."
 
-          # Single-package group: title contains "from X.Y.Z to X.Y.Z"
-          if echo "$PR_TITLE" | grep -qP 'from \d+\.\d+\.\d+ to \d+\.\d+\.\d+'; then
-            OLD_VERSION=$(echo "$PR_TITLE" | grep -oP 'from \K\d+\.\d+\.\d+')
-            NEW_VERSION=$(echo "$PR_TITLE" | grep -oP 'to \K\d+\.\d+\.\d+')
+          # Single-package group: title contains "from X.Y.Z to X.Y.Z" (with optional specifier like >=)
+          if echo "$PR_TITLE" | grep -qP 'from [><=~]*\d+\.\d+\.\d+ to [><=~]*\d+\.\d+\.\d+'; then
+            OLD_VERSION=$(echo "$PR_TITLE" | grep -oP 'from [><=~]*\K\d+\.\d+\.\d+')
+            NEW_VERSION=$(echo "$PR_TITLE" | grep -oP 'to [><=~]*\K\d+\.\d+\.\d+')
             LEVEL=$(classify_semver "$OLD_VERSION" "$NEW_VERSION")
             echo "update-type=version-update:semver-$LEVEL" >> "$GITHUB_OUTPUT"
             echo "Detected $LEVEL update: $OLD_VERSION -> $NEW_VERSION"
@@ -65,9 +65,9 @@ jobs:
             COMMIT_BODY=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" --jq '.commit.message')
             HIGHEST="patch"
             while IFS= read -r line; do
-              if echo "$line" | grep -qP 'from \d+\.\d+\.\d+ to \d+\.\d+\.\d+'; then
-                OLD=$(echo "$line" | grep -oP 'from \K\d+\.\d+\.\d+')
-                NEW=$(echo "$line" | grep -oP 'to \K\d+\.\d+\.\d+')
+              if echo "$line" | grep -qP 'from [><=~]*\d+\.\d+\.\d+ to [><=~]*\d+\.\d+\.\d+'; then
+                OLD=$(echo "$line" | grep -oP 'from [><=~]*\K\d+\.\d+\.\d+')
+                NEW=$(echo "$line" | grep -oP 'to [><=~]*\K\d+\.\d+\.\d+')
                 LEVEL=$(classify_semver "$OLD" "$NEW")
                 echo "  $OLD -> $NEW ($LEVEL)"
                 if [ "$LEVEL" = "major" ]; then
